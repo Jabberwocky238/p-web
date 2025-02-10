@@ -52,14 +52,14 @@ export default defineConfig({
 			template: "./index.html"
 		}),
 		isDev ? new RefreshPlugin() : null,
-		// new rspack.CopyRspackPlugin({
-		// 	patterns: [
-		// 		{
-		// 			from: '*.mp3',
-		// 			context: 'public',
-		// 		},
-		// 	],
-		// } as CopyRspackPluginOptions),
+		new rspack.CopyRspackPlugin({
+			patterns: [
+				{
+					from: '*.*',
+					context: 'public',
+				},
+			],
+		} as CopyRspackPluginOptions),
 		new rspack.DefinePlugin({
 			"process.env.BACKEND_API": isDev ? JSON.stringify("http://127.0.0.1:23891") : JSON.stringify("http://music.jw238.site"),
 			"process.env.SELF_API": isDev ? JSON.stringify("http://127.0.0.1:8080") : JSON.stringify("http://music.jw238.site"),

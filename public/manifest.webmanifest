@@ -1,0 +1,26 @@
+{
+    "name": "MMM-MyModule",
+    "short_name": "MMM",
+    "description": "descriptiondescriptiondescription",
+    "start_url": "/",
+    "display": "standalone",
+    "icons": [
+        {
+            "src": "/react.svg",
+            "sizes": "48x48"
+        },
+        {
+            "src": "/react.svg",
+            "sizes": "72x72 96x96",
+            "purpose": "maskable"
+        },
+        {
+            "src": "/react.svg",
+            "sizes": "128x128 256x256"
+        },
+        {
+            "src": "/react.svg",
+            "sizes": "512x512"
+        }
+    ]
+}
