@@ -1,0 +1,53 @@
+name: Build and Publish
+
+on:
+  push:
+    branches:
+      - main  # 触发条件，可以根据你需要的分支修改
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '20.18'
+    
+    - name: Install dependencies
+      run: npm install -g pnpm
+
+    - name: Install dependencies
+      run: pnpm install
+
+    - name: Build project
+      run: pnpm run build  # 根据你的项目需要修改
+
+    - name: Prepare publish branch
+      run: |
+        git config --global user.name "GitHub Action"
+        git config --global user.email "action@github.com"
+        git checkout -b publish
+
+    - name: Copy build artifacts
+      run: |
+        # shopt -s dotglob # 隐藏文件匹配
+        shopt -s extglob # 扩展匹配
+        rm -rf !("dist")
+        cp -R dist/* .  # 根据你的构建输出目录修改
+
+    - name: Commit and push changes
+      run: |
+        git add .
+        git commit -m "Publish build artifacts"
+        git push origin publish --force
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    
+    - name: Trigger webhook
+      run: |
+        curl -X GET ${{ secrets.WEB_HOOK_URL }}/github--p-web--update  # 替换为你的 webhook 地址
