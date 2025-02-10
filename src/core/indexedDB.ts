@@ -14,6 +14,7 @@ export async function addData(db: IDBPDatabase, data: any) {
 
 export async function getData(db: IDBPDatabase, id: any) {
     return await db.get('myStore', id);
+
 }
 
 export async function deleteData(db: IDBPDatabase, id: any) {
