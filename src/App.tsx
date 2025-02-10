@@ -12,6 +12,7 @@ const API_BASE_URL = process.env.BACKEND_API;
 import { ThemeProvider, createTheme } from '@mui/material';
 import Import from "./components/Import";
 import Player from "./components/Player";
+import { SETTINGS } from "./core/route";
 
 const theme = createTheme({
 	colorSchemes: {
@@ -44,15 +45,11 @@ function App() {
 					</Drawer>
 					<Container sx={{ flexGrow: 1 }}>
 						<Switch >
-							<Route path="/playlist">
-								<Playlist />
-							</Route>
-							<Route path="/setting">
-								<Settings />
-							</Route>
-							<Route path="/import">
-								<Import />
-							</Route>
+							{SETTINGS.map((obj) => (
+								<Route path={obj.link} key={obj.name}>
+									{obj.component}
+								</Route>
+							))}
 							<Redirect to="/playlist" replace />
 						</Switch>
 					</Container>

@@ -8,25 +8,11 @@ import InboxIcon from '@mui/icons-material/MoveToInbox';
 import MailIcon from '@mui/icons-material/Mail';
 import { Link } from 'wouter';
 import { ListItemText } from '@mui/material';
+import { SETTINGS } from '../core/route';
 
 interface Props {
     toggleDrawer: (newOpen: boolean) => () => void;
 }
-
-const SETTINGS = [
-    {
-        name: "Upload",
-        link: "/setting"
-    },
-    {
-        name: "Import",
-        link: "/import"
-    },
-    {
-        name: "Playlist",
-        link: "/playlist"
-    }
-]
 
 export default function DrawerList({ toggleDrawer }: Props) {
     return (

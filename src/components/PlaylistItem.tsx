@@ -13,44 +13,23 @@ import { bus } from '../core/bus';
 export default function MediaControlCard({ data }: { data: Music }) {
     return (
         <Card sx={{ display: 'flex' }}>
-            <Box sx={{ display: 'flex', flexDirection: 'row' }}>
+            <Box sx={{ display: 'flex', flexDirection: 'row' }} onClick={() => {
+                bus.emit('switchPlaylist', {
+                    obj: data,
+                });
+                window.location.href = "#/music/" + data.uuid;
+            }}>
                 <CardMedia
                     component="img"
                     sx={{ width: "20%", aspectRatio: "1 / 1" }}
                     image={data.cover instanceof File ? URL.createObjectURL(data.cover) : data.cover}
                     alt="Live from space album cover"
                 />
-                <CardContent sx={{ flex: '1 0 auto', flexGrow: 1 }}>
-                    <Typography component="div" variant="h5">
-                        {data.title}
-                    </Typography>
-                    <Typography
-                        variant="subtitle1"
-                        component="div"
-                        sx={{ color: 'text.secondary' }}
-                    >
-                        {data.artist}
-                    </Typography>
-                    <Typography
-                        variant="subtitle1"
-                        component="div"
-                        sx={{ color: 'text.secondary' }}
-                    >
-                        {data.album}
-                    </Typography>
+                <CardContent sx={{ flex: '1 0 auto', flexGrow: 1, textWrap: 'wrap', padding: 'unset' }}>
+                    <strong>{data.title}</strong>
+                    <div>{data.artist}</div>
+                    <div>{data.album}</div>
                 </CardContent>
-                <Box sx={{ display: 'flex', alignItems: 'center', pl: 1, pb: 1 }}>
-                    <IconButton aria-label="play/pause" onClick={() => {
-                        bus.emit('switchPlaylist', {
-                            obj: data,
-                        });
-                    }}>
-                        <PlayArrowIcon sx={{ height: 38, width: 38 }} />
-                    </IconButton>
-                    <IconButton aria-label="next">
-                        <SettingsIcon sx={{ height: 38, width: 38 }} />
-                    </IconButton>
-                </Box>
             </Box>
         </Card>
     );

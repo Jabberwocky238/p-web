@@ -41,6 +41,7 @@ export default function TitlebarBelowImageList() {
                 showSkipControls
                 showFilledVolume
                 showJumpControls={false}
+                loop
                 // onClickPrevious={() => {
                 //     setIndex((index - 1 + tracks.length) % tracks.length);
                 // }}
