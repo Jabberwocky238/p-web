@@ -3,10 +3,11 @@ import Box from '@mui/material/Box';
 import Paper from '@mui/material/Paper';
 import Stack from '@mui/material/Stack';
 import { styled } from '@mui/material/styles';
-import MediaControlCard, { Music } from '../core/musicModel';
+import { Music } from '../core/musicModel';
 import { IDBPDatabase } from 'idb';
 import { getAllData, initDB } from '../core/indexedDB';
 import React from 'react';
+import MediaControlCard from './PlaylistItem';
 
 const Item = styled(Paper)(({ theme }) => ({
     backgroundColor: '#fff',

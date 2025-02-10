@@ -73,9 +73,6 @@ export default defineConfig({
 			})
 		]
 	},
-	devServer: {
-		historyApiFallback: true,
-	} as DevServer,
 	experiments: {
 		css: true
 	},

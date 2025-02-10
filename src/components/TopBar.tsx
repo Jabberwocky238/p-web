@@ -93,7 +93,7 @@ export default function ButtonAppBar({ toggleDrawer }: Props) {
                 <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
                     Photos
                 </Typography>
-                <Search>
+                {/* <Search>
                     <SearchIconWrapper>
                         <SearchIcon />
                     </SearchIconWrapper>
@@ -101,10 +101,10 @@ export default function ButtonAppBar({ toggleDrawer }: Props) {
                         placeholder="Search…"
                         inputProps={{ 'aria-label': 'search' }}
                     />
-                </Search>
-                <Box sx={{ flexGrow: 0 }}>
+                </Search> */}
+                {/* <Box sx={{ flexGrow: 0 }}>
                     <UserSetting />
-                </Box>
+                </Box> */}
             </Toolbar>
         </AppBar>
     );

@@ -2,7 +2,7 @@ import { useEffect, useLayoutEffect, useState } from "react";
 
 import { Link, Redirect, Route, Router, Switch, useRouter } from "wouter";
 import ButtonAppBar from "./components/TopBar";
-import { Drawer } from "@mui/material";
+import { Container, Drawer } from "@mui/material";
 import DrawerList from "./components/Drawer";
 import Playlist from "./components/Playlist";
 import { useHashLocation } from "wouter/use-hash-location";
@@ -11,6 +11,7 @@ const API_BASE_URL = process.env.BACKEND_API;
 
 import { ThemeProvider, createTheme } from '@mui/material';
 import Import from "./components/Import";
+import Player from "./components/Player";
 
 const theme = createTheme({
 	colorSchemes: {
@@ -41,19 +42,22 @@ function App() {
 					<Drawer open={open} onClose={toggleDrawer(false)}>
 						<DrawerList toggleDrawer={toggleDrawer} />
 					</Drawer>
-					<Switch >
-						<Route path="/playlist">
-							<Playlist />
-						</Route>
-						<Route path="/setting">
-							<Settings />
-						</Route>
-						<Route path="/import">
-							<Import />
-						</Route>
-						<Redirect to="/playlist" replace />
-					</Switch>
+					<Container sx={{ flexGrow: 1 }}>
+						<Switch >
+							<Route path="/playlist">
+								<Playlist />
+							</Route>
+							<Route path="/setting">
+								<Settings />
+							</Route>
+							<Route path="/import">
+								<Import />
+							</Route>
+							<Redirect to="/playlist" replace />
+						</Switch>
+					</Container>
 				</Router>
+				<Player />
 			</ThemeProvider>
 		</>
 	);
