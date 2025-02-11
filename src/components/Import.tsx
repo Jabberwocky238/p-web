@@ -7,7 +7,7 @@ import { Box, Stack, TextField } from "@mui/material";
 
 import { Music, MusicBuilder } from "../core/musicModel";
 import { IDBPDatabase } from "idb";
-import { addData, initDB } from "../core/indexedDB";
+import { IDBwarpper, useDB } from "../core/indexedDB";
 
 function generateUUIDv4(): string {
     return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (char) => {
@@ -34,11 +34,11 @@ export default function Settings() {
     const [imageFile, setImageFile] = React.useState<File | null>(null);
     const [title, setTitle] = React.useState<string>('');
 
-    const [db, setDB] = React.useState<IDBPDatabase | null>(null);
+    const [db, setDB] = React.useState<IDBwarpper | null>(null);
 
     React.useEffect(() => {
         (async () => {
-            const db = await initDB();
+            const db = await useDB();
             setDB(db);
         })()
     }, []);
@@ -63,7 +63,7 @@ export default function Settings() {
             file: audioFile!,
             cover: imageFile ? imageFile : "/default-album-pic.jfif",
         });
-        await addData(db!, music);
+        await db!.addData(music);
     }
 
     return (

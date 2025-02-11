@@ -13,6 +13,7 @@ import { ThemeProvider, createTheme } from '@mui/material';
 import Import from "./components/Import";
 import Player from "./components/Player";
 import { SETTINGS } from "./core/route";
+import { useDB } from "./core/indexedDB";
 
 const theme = createTheme({
 	colorSchemes: {
@@ -33,6 +34,12 @@ function App() {
 		// });
 	};
 
+	useEffect(() => {
+		(async () => {
+			await useDB();
+		})();
+	}, []);
+
 	return (
 		<>
 			<ThemeProvider theme={theme}>
@@ -44,14 +51,14 @@ function App() {
 						<DrawerList toggleDrawer={toggleDrawer} />
 					</Drawer>
 					<Container sx={{ flexGrow: 1 }}>
-						<Switch >
+						<Router>
 							{SETTINGS.map((obj) => (
 								<Route path={obj.link} key={obj.name}>
 									{obj.component}
 								</Route>
 							))}
 							<Redirect to="/playlist" replace />
-						</Switch>
+						</Router>
 					</Container>
 				</Router>
 				<Player />

@@ -21,6 +21,7 @@ export class Music {
         public artist: string,
         public album: string,
         public version: string,
+
         public file: File,
         public cover: File | string,
     ) { }

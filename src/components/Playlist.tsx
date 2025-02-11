@@ -4,8 +4,7 @@ import Paper from '@mui/material/Paper';
 import Stack from '@mui/material/Stack';
 import { styled } from '@mui/material/styles';
 import { Music } from '../core/musicModel';
-import { IDBPDatabase } from 'idb';
-import { getAllData, initDB } from '../core/indexedDB';
+import { useDB } from '../core/indexedDB';
 import React from 'react';
 import MediaControlCard from './PlaylistItem';
 
@@ -25,8 +24,8 @@ export default function BasicStack() {
 
     React.useEffect(() => {
         (async () => {
-            const db = await initDB();
-            const data = await getAllData(db);
+            const db = await useDB();
+            const data = await db.getAllData();
             setMusicList(data);
             console.log(data);
         })();

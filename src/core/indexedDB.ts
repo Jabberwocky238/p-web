@@ -1,25 +1,39 @@
 import { IDBPDatabase, openDB } from 'idb';
-export async function initDB() {
+
+var instance: IDBwarpper;
+
+export async function useDB() {
+    if (instance) {
+        return instance;
+    }
     const db = await openDB('myDatabase', 1, {
         upgrade(db) {
             db.createObjectStore('myStore', { keyPath: 'uuid' });
         },
     });
-    return db;
+    instance = new IDBwarpper(db);
+    return instance;
 }
 
-export async function addData(db: IDBPDatabase, data: any) {
-    await db.add('myStore', data);
-}
+export class IDBwarpper {
+    private db: IDBPDatabase;
+    constructor(db: IDBPDatabase) {
+        this.db = db;
+    }
 
-export async function getData(db: IDBPDatabase, id: any) {
-    return await db.get('myStore', id);
-}
+    async addData(data: any) {
+        await this.db.add('myStore', data);
+    }
 
-export async function deleteData(db: IDBPDatabase, id: any) {
-    await db.delete('myStore', id);
-}
+    async getData(id: any) {
+        return await this.db.get('myStore', id);
+    }
 
-export async function getAllData(db: IDBPDatabase) {
-    return await db.getAll('myStore');
+    async deleteData(id: any) {
+        await this.db.delete('myStore', id);
+    }
+
+    async getAllData() {
+        return await this.db.getAll('myStore');
+    }
 }

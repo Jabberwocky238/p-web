@@ -3,7 +3,7 @@
     "short_name": "MMM",
     "description": "descriptiondescriptiondescription",
     "start_url": "/",
-    "display": "fullscreen",
+    "display": "standalone",
     "icons": [
         {
             "src": "/react.svg",

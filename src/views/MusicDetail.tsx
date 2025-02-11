@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Music } from "../core/musicModel";
-import { getData, initDB } from "../core/indexedDB";
+import { useDB } from "../core/indexedDB";
 import { Box, Stack } from "@mui/material";
 import { bus } from "../core/bus";
 
@@ -26,8 +26,8 @@ export default function MusicDetail({ uuid }: MusicDetailProps) {
 
     useEffect(() => {
         (async () => {
-            const db = await initDB();
-            const music = await getData(db, uuid) as Music;
+            const db = await useDB();
+            const music = await db.getData(uuid) as Music;
             setMusic({
                 uuid: music.uuid,
                 title: music.title,
