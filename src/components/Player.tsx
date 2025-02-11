@@ -3,6 +3,7 @@ import { getMusicBlobUrl, getPlaylist } from '../core/api';
 import AudioPlayer from 'react-h5-audio-player';
 import 'react-h5-audio-player/lib/styles.css';
 import { bus } from '../core/bus';
+import { Music } from '../core/models/music';
 
 interface Track {
     UUID: string;
@@ -11,22 +12,25 @@ interface Track {
 }
 
 export default function TitlebarBelowImageList() {
-    const [tracks, setTracks] = React.useState<Track[]>([]);
-    const [index, setIndex] = React.useState<number>(0);
+    // const [tracks, setTracks] = React.useState<Track[]>([]);
+    // const [index, setIndex] = React.useState<number>(0);
     const [srcComputed, setSrcComputed] = React.useState<string>("");
 
-    React.useEffect(() => {
-        if (tracks.length === 0) {
-            return;
-        }
-        getMusicBlobUrl(tracks[index].UUID).then((url) => {
-            setSrcComputed(url);
-        });
-    }, [index, tracks]);
+    // React.useEffect(() => {
+    //     if (tracks.length === 0) {
+    //         return;
+    //     }
+    //     getMusicBlobUrl(tracks[index].UUID).then((url) => {
+    //         setSrcComputed(url);
+    //     });
+    // }, [index, tracks]);
 
     React.useEffect(() => {
         bus.on('switchPlaylist', ({ obj }) => {
-            setSrcComputed(URL.createObjectURL(obj.file));
+            const music = Music.fromParams(obj);
+            music.getSrc().then((url) => {
+                setSrcComputed(url);
+            });
         })
         return () => {
             bus.off('switchPlaylist');

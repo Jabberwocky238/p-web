@@ -1,9 +1,9 @@
 import mitt, { Emitter } from "mitt";
-import { Music } from "./musicModel";
+import { MusicParams } from "./models/music";
 
 interface _EVENTS {
     "switchPlaylist": {
-        obj: Music,
+        obj: MusicParams,
     }
 }
 

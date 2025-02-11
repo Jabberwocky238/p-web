@@ -5,7 +5,7 @@ import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import { Box, Stack, TextField } from "@mui/material";
 
 
-import { Music, MusicBuilder } from "../core/musicModel";
+import { Music } from "../core/models/music";
 import { IDBPDatabase } from "idb";
 import { IDBwarpper, useDB } from "../core/indexedDB";
 
@@ -34,15 +34,6 @@ export default function Settings() {
     const [imageFile, setImageFile] = React.useState<File | null>(null);
     const [title, setTitle] = React.useState<string>('');
 
-    const [db, setDB] = React.useState<IDBwarpper | null>(null);
-
-    React.useEffect(() => {
-        (async () => {
-            const db = await useDB();
-            setDB(db);
-        })()
-    }, []);
-
     const disableSubmit = React.useMemo(() => {
         if (audioFile && title.length !== 0) {
             return false;
@@ -54,16 +45,15 @@ export default function Settings() {
         if (disableSubmit) {
             return;
         }
-        const music = MusicBuilder({
+        const music = Music.fromParams({
             uuid: generateUUIDv4(),
             title: title,
             artist: "me",
             album: "my album",
             version: "1.0.0",
-            file: audioFile!,
-            cover: imageFile ? imageFile : "/default-album-pic.jfif",
         });
-        await db!.addData(music);
+        await music.dumpToDB(audioFile!, imageFile);
+        alert('Success');
     }
 
     return (

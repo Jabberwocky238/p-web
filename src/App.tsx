@@ -1,19 +1,16 @@
-import { useEffect, useLayoutEffect, useState } from "react";
-
-import { Link, Redirect, Route, Router, Switch, useRouter } from "wouter";
+import { useEffect, useState } from "react";
+import { Redirect, Route, Router } from "wouter";
 import ButtonAppBar from "./components/TopBar";
 import { Container, Drawer } from "@mui/material";
 import DrawerList from "./components/Drawer";
-import Playlist from "./components/Playlist";
 import { useHashLocation } from "wouter/use-hash-location";
-import Settings from "./components/Settings";
-const API_BASE_URL = process.env.BACKEND_API;
-
 import { ThemeProvider, createTheme } from '@mui/material';
-import Import from "./components/Import";
 import Player from "./components/Player";
 import { SETTINGS } from "./core/route";
 import { useDB } from "./core/indexedDB";
+
+
+const API_BASE_URL = process.env.BACKEND_API;
 
 const theme = createTheme({
 	colorSchemes: {

@@ -7,12 +7,22 @@ import CardMedia from '@mui/material/CardMedia';
 import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
-import { Music } from '../core/musicModel';
+import { Music } from '../core/models/music';
 import { bus } from '../core/bus';
 import SquareImage from './SquareImage';
+import { useEffect, useState } from 'react';
 
 export default function MediaControlCard({ data }: { data: Music }) {
-    const imageSrc = data.cover instanceof File ? URL.createObjectURL(data.cover) : data.cover;
+    const [imageSrc, setImageSrc] = useState<string>("/default-album-pic.jfif");
+
+    useEffect(() => {
+        (async () => {
+            const music = Music.fromParams(data);
+            const src = await music.getCoverSrc();
+            setImageSrc(src);
+        })();
+    }, [data]);
+
     return (
         <Card sx={{ display: 'flex', flexDirection: 'row' }} onClick={() => {
             bus.emit('switchPlaylist', {

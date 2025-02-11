@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Music } from "../core/musicModel";
+import { Music } from "../core/models/music";
 import { useDB } from "../core/indexedDB";
 import { Box, Stack } from "@mui/material";
 import { bus } from "../core/bus";
@@ -8,31 +8,17 @@ interface MusicDetailProps {
     uuid: string;
 }
 
-interface MusicMetadata {
-    uuid: string;
-    title: string;
-    cover: string | Blob;
-}
-
 export default function MusicDetail({ uuid }: MusicDetailProps) {
-    const [music, setMusic] = useState<MusicMetadata | null>(null);
-
-    const coverUrl = useMemo(() => {
-        if (!music) {
-            return '';
-        }
-        return typeof music.cover === 'string' ? music.cover : URL.createObjectURL(music.cover);
-    }, [music && music.cover]);
+    const [music, setMusic] = useState<Music | null>(null);
+    const [coverUrl, setCoverUrl] = useState<string>("");
 
     useEffect(() => {
         (async () => {
-            const db = await useDB();
-            const music = await db.getData(uuid) as Music;
-            setMusic({
-                uuid: music.uuid,
-                title: music.title,
-                cover: music.cover,
-            });
+            const music = await Music.fromUUID(uuid);
+            setMusic(music);
+            const cover = await music.getCoverSrc();
+            setCoverUrl(cover);
+
             bus.emit('switchPlaylist', {
                 obj: music
             });

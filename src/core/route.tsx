@@ -1,6 +1,6 @@
 import Import from "../components/Import";
 import Playlist from "../components/Playlist";
-import MusicDetail from "../views/MusicDetail";
+import MusicDetail from "../components/MusicDetail";
 
 export const SETTINGS = [
     // {
