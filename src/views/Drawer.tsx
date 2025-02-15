@@ -20,7 +20,7 @@ export const SETTINGS = [
         link: "/import/",
     },
     {
-        name: "Playlist",
+        name: "Local",
         link: "/playlist/",
     },
 ]

@@ -10,6 +10,7 @@ const SquareImage = ({ width, style, ...props }: SquareImageProps) => {
     return (
         <img
             {...props}
+            className='square-image'
             style={{
                 ...style,
                 width: formattedWidth || '100%',
