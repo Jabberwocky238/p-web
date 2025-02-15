@@ -1,5 +1,4 @@
 import mitt, { Emitter, EventType } from "mitt";
-import { MusicParams } from "./models/music";
 
 interface ALL_EVENTS extends Record<EventType, unknown> {
     "toggleDrawer": {
@@ -10,8 +9,7 @@ interface ALL_EVENTS extends Record<EventType, unknown> {
     },
     "switchMusic": {
         musicUUID: string,
-        index: number,
-        direction: "next" | "prev",
+        playlistUUID: string | undefined,
     },
 }
 

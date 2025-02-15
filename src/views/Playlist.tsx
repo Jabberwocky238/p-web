@@ -3,15 +3,15 @@ import Box from '@mui/material/Box';
 import Paper from '@mui/material/Paper';
 import Stack from '@mui/material/Stack';
 import { styled } from '@mui/material/styles';
-import { Music } from '../core/models/music';
-import { useDB } from '../core/indexedDB';
+import { Music } from '@/core/models/music';
+import { useDB } from '@/core/indexedDB';
 import React from 'react';
-import MediaControlCard from './PlaylistItem';
+import MediaControlCard from '@@/PlaylistItem';
 import { useRoute } from 'wouter';
 import Button from '@mui/material/Button';
-import PlaylistContainModal from './PlaylistContainModal';
+import PlaylistContainModal from '@@/PlaylistContainModal';
 import { useSnackbar } from 'notistack';
-import { Playlist } from '../core/models/playlist';
+import { Playlist } from '@/core/models/playlist';
 
 const Item = styled(Paper)(({ theme }) => ({
     backgroundColor: '#fff',

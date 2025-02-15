@@ -6,14 +6,17 @@ import { bus } from '../core/bus';
 import { Music, MusicParams } from '../core/models/music';
 import { Playlist } from '../core/models/playlist';
 import { useLocation } from 'wouter';
+import { useSnackbar } from 'notistack';
 
 
 export default function TitlebarBelowImageList() {
     const [tracks, setTracks] = React.useState<Music[]>([]);
     const [index, setIndex] = React.useState<number>(0);
-    const [srcComputed, setSrcComputed] = React.useState<string>("");
-    const [location, navigate] = useLocation();
 
+    const [location, navigate] = useLocation();
+    const { enqueueSnackbar } = useSnackbar();
+
+    const [srcComputed, setSrcComputed] = React.useState<string>("");
     React.useEffect(() => {
         if (tracks.length === 0) {
             return;
@@ -39,35 +42,53 @@ export default function TitlebarBelowImageList() {
         }
         setIndex(newIndex);
         const music = tracks[newIndex];
-        bus.emit('switchMusic', { musicUUID: music.uuid, index: newIndex, direction });
-        navigate(`#/music/${music.uuid}`);
+
+        bus.emit('switchMusic', {
+            musicUUID: music.uuid,
+            playlistUUID: localStorage.getItem('playlistUUID')!,
+        });
     }
 
     React.useEffect(() => {
-        bus.on('switchPlaylist', ({ playlistUUID }) => {
-            (async () => {
+        bus.on('switchMusic', ({ musicUUID, playlistUUID }) => {
+            async function fetchMusic() {
+                // 判断是否修改了playlist
                 if (!playlistUUID) {
+                    // 清空选择
+                    localStorage.removeItem('playlistUUID');
                     const musicList = await Music.getAllMusic();
                     setTracks(musicList);
-                    return;
-                }
-                const playlist = await Playlist.fromUUID(playlistUUID);
-                if (!playlist) {
-                    return;
-                }
-                const musicList: Music[] = [];
-                for (const uuid of playlist.contains) {
-                    const music = await Music.fromUUID(uuid);
-                    if (music) {
-                        musicList.push(music);
+                } else if (playlistUUID !== localStorage.getItem('playlistUUID')) {
+                    // 更新选择
+                    localStorage.setItem('playlistUUID', playlistUUID);
+                    const playlist = await Playlist.fromUUID(playlistUUID);
+                    if (!playlist) {
+                        enqueueSnackbar(`404 Playlist not found, uuid: ${playlistUUID}`, { variant: "error" });
+                        return;
                     }
+                    const musicList: Music[] = [];
+                    for (const uuid of playlist.contains) {
+                        const music = await Music.fromUUID(uuid);
+                        if (music) {
+                            musicList.push(music);
+                        }
+                    }
+                    setTracks(musicList);
+                } else {
+                    // 未修改playlist
                 }
-                setTracks(musicList);
-                setIndex(0);
-            })();
+                // find index
+                const index = tracks.findIndex(music => music.uuid === musicUUID);
+                if (index === -1) {
+                    setIndex(0);
+                } else {
+                    setIndex(index);
+                }
+            }
+            fetchMusic();
         })
         return () => {
-            bus.off('switchPlaylist');
+            bus.off('switchMusic');
         }
     }, []);
 

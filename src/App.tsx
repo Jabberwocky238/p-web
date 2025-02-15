@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
 import { Redirect, Route, Router, Switch } from "wouter";
-import ButtonAppBar from "./components/TopBar";
+import ButtonAppBar from "./views/TopBar";
 import { Container, Drawer } from "@mui/material";
-import DrawerList from "./components/Drawer";
+import DrawerList from "@/views/Drawer";
 import { useHashLocation } from "wouter/use-hash-location";
 import { ThemeProvider, createTheme } from '@mui/material';
-import Player from "./components/Player";
+import Player from "@/views/Player";
 import { useDB } from "./core/indexedDB";
 import { bus } from "./core/bus";
 
@@ -73,9 +73,9 @@ export default function App() {
 	);
 }
 
-import Import from "./components/Import";
-import Playlist from "./components/Playlist";
-import MusicDetail from "./components/MusicDetail";
+import Import from "@/views/Import";
+import Playlist from "@/views/Playlist";
+import MusicDetail from "@/views/Music";
 
 const SETTINGS = [
 	{

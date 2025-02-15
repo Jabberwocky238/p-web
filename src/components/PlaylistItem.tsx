@@ -34,7 +34,7 @@ export default function MediaControlCard({ musicParams, playlistUUID }: Playlist
 
     return (
         <Card sx={{ display: 'flex', flexDirection: 'row' }} onClick={() => {
-            bus.emit('switchPlaylist', { playlistUUID });
+            bus.emit('switchMusic', { musicUUID: musicParams.uuid, playlistUUID });
             navigate(`/music/${musicParams.uuid}`);
         }}>
             <SquareImage src={imageSrc} width={"20%"} />

@@ -16,8 +16,12 @@ function intersection<T>(a: T[], b: T[]) {
     return a.filter((value) => b.includes(value));
 }
 
+interface TransferListProps {
+    uuid: string,
+    setContains: (c: string[]) => void
+}
 
-function TransferList({ uuid, setter }: { uuid: string, setter: (c: string[]) => void }) {
+function MyTransferList({ uuid, setContains }: TransferListProps) {
     const [checked, setChecked] = React.useState<Music[]>([]);
     const [left, setLeft] = React.useState<Music[]>([]);
     const [right, setRight] = React.useState<Music[]>([]);
@@ -43,13 +47,13 @@ function TransferList({ uuid, setter }: { uuid: string, setter: (c: string[]) =>
 
             setLeft(contained);
             setRight(notContained);
-            setter(left.map((music) => music.uuid));
+            setContains(left.map((music) => music.uuid));
         })();
     }, [uuid]);
 
     const handleCommit = (list: Music[]) => {
         console.log(list);
-        setter(list.map((music) => music.uuid));
+        setContains(list.map((music) => music.uuid));
     }
 
     const leftChecked = intersection(checked, left);
@@ -200,13 +204,13 @@ import { Playlist } from '../core/models/playlist';
 import { generateUUIDv4 } from '../core/utils';
 import { Music } from '../core/models/music';
 
-interface TransferListProps {
+interface PlaylistContainModalProps {
     open: boolean;
     handleClose: () => void;
     uuid: string;
 }
 
-export default function ({ open, handleClose, uuid }: TransferListProps) {
+export default function PlaylistContainModal({ open, handleClose, uuid }: PlaylistContainModalProps) {
     const [contains, setContains] = React.useState<string[]>([]);
     const { enqueueSnackbar } = useSnackbar();
 
@@ -219,11 +223,11 @@ export default function ({ open, handleClose, uuid }: TransferListProps) {
         }
         playlist.contains = contains;
         await playlist.dumpToDB();
-        enqueueSnackbar(`Playlist now have ${contains.length} musics, reload in 1s`, { variant: 'success' });
+        enqueueSnackbar(`Playlist now have ${contains.length} musics, reload in 500ms`, { variant: 'success' });
         handleClose();
         setTimeout(() => {
             window.location.reload();
-        }, 1000);
+        }, 500);
     }
 
     return (
@@ -233,7 +237,7 @@ export default function ({ open, handleClose, uuid }: TransferListProps) {
         >
             <DialogTitle>Edit Playlist</DialogTitle>
             <DialogContent>
-                <TransferList uuid={uuid} setter={(c) => setContains(c)} />
+                <MyTransferList uuid={uuid} setContains={(c) => setContains(c)} />
             </DialogContent>
             <DialogActions>
                 <Button onClick={handleClose}>Cancel</Button>

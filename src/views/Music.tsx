@@ -4,7 +4,7 @@ import { useDB } from "../core/indexedDB";
 import { Box, Stack } from "@mui/material";
 import { bus } from "../core/bus";
 import { useRoute } from "wouter";
-import SquareImage from "./SquareImage";
+import SquareImage from "../components/SquareImage";
 
 interface MusicDetailProps {
     uuid: string;
@@ -21,14 +21,16 @@ export default function MusicDetail() {
             if (!ok) {
                 return;
             }
-            const { music, coverUrl } = await retrieveMetadata(params.uuid);
+            console.log(params.uuid);
+            const { music, coverUrl } = await retrieveMusicMetadata(params.uuid);
             setMusic(music);
             setCoverUrl(coverUrl);
         })();
     }, [params && params.uuid]);
+
     useEffect(() => {
-        bus.on("switchMusic", ({ musicUUID, index, direction }) => {
-            retrieveMetadata(musicUUID).then(({ music, coverUrl }) => {
+        bus.on("switchMusic", ({ musicUUID, playlistUUID }) => {
+            retrieveMusicMetadata(musicUUID).then(({ music, coverUrl }) => {
                 setMusic(music);
                 setCoverUrl(coverUrl);
             });
@@ -50,7 +52,7 @@ export default function MusicDetail() {
     );
 }
 
-async function retrieveMetadata(uuid: string) {
+async function retrieveMusicMetadata(uuid: string) {
     const music = await Music.fromUUID(uuid);
     if (!music) {
         throw new Error("Music not found");

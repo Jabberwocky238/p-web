@@ -1,7 +1,11 @@
 {
   "compilerOptions": {
-    "target": "ES2020",
-    "lib": ["DOM", "ES2020"],
+    "target": "es2022",
+    "lib": [
+      "DOM",
+      "ES2020"
+    ],
+    "esModuleInterop": true,
     "module": "ESNext",
     "jsx": "react-jsx",
     "strict": true,
@@ -11,9 +15,19 @@
     "resolveJsonModule": true,
     "moduleResolution": "bundler",
     "useDefineForClassFields": true,
-    "allowImportingTsExtensions": true
+    "allowImportingTsExtensions": true,
+    "paths": {
+      "@/*": [
+        "./src/*"
+      ],
+      "@@/*": [
+        "./src/components/*"
+      ],
+    }
   },
-  "include": ["src"],
+  "include": [
+    "src"
+  ],
   "ts-node": {
     "compilerOptions": {
       "module": "CommonJS"

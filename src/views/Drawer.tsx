@@ -8,11 +8,11 @@ import InboxIcon from '@mui/icons-material/MoveToInbox';
 import MailIcon from '@mui/icons-material/Mail';
 import { Link, useLocation } from 'wouter';
 import { Button, ListItemText } from '@mui/material';
-import { bus } from '../core/bus';
+import { bus } from '@/core/bus';
 import EditIcon from '@mui/icons-material/Edit';
 import React from 'react';
-import NewPlaylistModal from './NewPlaylistModal';
-import { Playlist } from '../core/models/playlist';
+import NewPlaylistModal from '@@/NewPlaylistModal';
+import { Playlist } from '@/core/models/playlist';
 
 export const SETTINGS = [
     {

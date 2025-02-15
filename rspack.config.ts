@@ -1,6 +1,7 @@
 import { defineConfig } from "@rspack/cli";
-import { CopyRspackPluginOptions, DefinePluginOptions, DevServer, rspack } from "@rspack/core";
-import * as RefreshPlugin from "@rspack/plugin-react-refresh";
+import { CopyRspackPluginOptions, DefinePluginOptions, rspack } from "@rspack/core";
+import RefreshPlugin from "@rspack/plugin-react-refresh";
+import path from "path";
 
 const isDev = process.env.NODE_ENV === "development";
 
@@ -13,7 +14,16 @@ export default defineConfig({
 		main: "./src/main.tsx"
 	},
 	resolve: {
-		extensions: ["...", ".ts", ".tsx", ".jsx"]
+		// 1. tsconfig object fails with `Module not found: Can't resolve 'src/calc' in os-path-to-this-file`
+		tsConfig: {
+			configFile: path.resolve(__dirname, "./tsconfig.json"),
+			references: "auto",
+		},
+		extensions: ["...", ".ts", ".tsx", ".jsx", '.json'],
+		alias: {
+			"@": path.resolve(__dirname, "src"),
+			"@@": path.resolve(__dirname, "src/components"),
+		}
 	},
 	module: {
 		rules: [

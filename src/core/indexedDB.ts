@@ -16,11 +16,6 @@ const upgradeTasks = [
             db.createObjectStore(store, { keyPath: 'uuid' });
         }
     },
-    (db: IDBPDatabase) => {
-        for (const store of playlist_objectStores) {
-            db.createObjectStore(store, { keyPath: 'uuid' });
-        }
-    }
 ];
 
 export async function useDB() {
@@ -28,19 +23,18 @@ export async function useDB() {
         // console.log('instance', instance);
         return instance;
     }
-    var objectStoreConstructors = [] as string[];
-    objectStoreConstructors.push(...music_objectStores);
-    objectStoreConstructors.push(...playlist_objectStores);
-    // console.log('objectStoreConstructors', objectStoreConstructors);
-
-    const db = await openDB('myDatabase', 3, {
+    const db = await openDB('myDatabase', 2, {
         upgrade(db, oldVersion, newVersion, transaction) {
             if (!newVersion) {
                 return;
             }
             console.log('upgrade', oldVersion, newVersion);
             for (let i = oldVersion; i < newVersion; i++) {
-                upgradeTasks[i](db);
+                try {
+                    upgradeTasks[i](db);
+                } catch (e) {
+                    alert(e);
+                }
             }
         },
         blocked() {
