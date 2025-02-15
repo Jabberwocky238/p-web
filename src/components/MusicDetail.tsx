@@ -4,41 +4,60 @@ import { useDB } from "../core/indexedDB";
 import { Box, Stack } from "@mui/material";
 import { bus } from "../core/bus";
 import { useRoute } from "wouter";
+import SquareImage from "./SquareImage";
 
 interface MusicDetailProps {
     uuid: string;
 }
 
-export default function MusicDetail({ uuid }: MusicDetailProps) {
-    const [ok, params] = useRoute("/playlist/:uuid");
+export default function MusicDetail() {
+    const [ok, params] = useRoute("/music/:uuid");
 
     const [music, setMusic] = useState<Music | null>(null);
     const [coverUrl, setCoverUrl] = useState<string>("");
 
     useEffect(() => {
         (async () => {
-            const music = await Music.fromUUID(uuid);
+            if (!ok) {
+                return;
+            }
+            const { music, coverUrl } = await retrieveMetadata(params.uuid);
             setMusic(music);
-            const cover = await music.getCoverSrc();
-            setCoverUrl(cover);
-
-            bus.emit('switchPlaylist', { obj: music });
+            setCoverUrl(coverUrl);
         })();
-    }, [uuid]);
+    }, [params && params.uuid]);
+    useEffect(() => {
+        bus.on("switchMusic", ({ musicUUID, index, direction }) => {
+            retrieveMetadata(musicUUID).then(({ music, coverUrl }) => {
+                setMusic(music);
+                setCoverUrl(coverUrl);
+            });
+        });
+        return () => {
+            bus.off("switchMusic");
+        }
+    }, []);
 
     return (
         <>
             {music && (
                 <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                    <img style={{
-                        width: '360px',
-                        height: 'auto',
-                        objectFit: 'cover',
-                        aspectRatio: '1 / 1',
-                    }} src={coverUrl} alt={music.title} />
+                    <SquareImage src={coverUrl} width={'360px'} alt={music.title} />
                     <strong>{music.title}</strong>
                 </div>
             )}
         </>
     );
+}
+
+async function retrieveMetadata(uuid: string) {
+    const music = await Music.fromUUID(uuid);
+    if (!music) {
+        throw new Error("Music not found");
+    }
+    const coverUrl = await music.getCoverSrc();
+    return { music, coverUrl } as {
+        music: Music,
+        coverUrl: string,
+    };
 }

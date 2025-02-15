@@ -5,6 +5,8 @@ import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import { Box, Stack, TextField } from "@mui/material";
 import { Music, MusicParams } from "../core/models/music";
 import { useLocation, useRoute } from "wouter";
+import { useSnackbar } from 'notistack';
+import { generateUUIDv4 } from "../core/utils";
 
 const VisuallyHiddenInput = styled('input')({
     clip: 'rect(0 0 0 0)',
@@ -21,6 +23,7 @@ const VisuallyHiddenInput = styled('input')({
 export default function Settings() {
     const [ok, params] = useRoute("/import/:uuid");
     const [location, navigate] = useLocation();
+    const { enqueueSnackbar } = useSnackbar();
 
     const [audioFile, setAudioFile] = React.useState<File | null>(null);
     const [imageFile, setImageFile] = React.useState<File | null>(null);
@@ -66,7 +69,7 @@ export default function Settings() {
         }
         const music = Music.fromParams(musicObj);
         await music.dumpToDB(audioFile!, imageFile);
-        alert('Success');
+        enqueueSnackbar('Success', { variant: 'success' });
         navigate('/playlist/');
     }
 
@@ -171,10 +174,3 @@ function computeFileSize(size: number) {
     }
 }
 
-function generateUUIDv4(): string {
-    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (char) => {
-        const randomHex = Math.random() * 16 | 0; // 生成 0-15 的随机整数
-        const value = char === 'x' ? randomHex : (randomHex & 0x3 | 0x8); // 生成符合规则的数字
-        return value.toString(16); // 转换为十六进制字符串
-    });
-}

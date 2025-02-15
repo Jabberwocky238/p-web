@@ -11,13 +11,26 @@ import { bus } from "./core/bus";
 
 const API_BASE_URL = process.env.BACKEND_API;
 
+import { SnackbarProvider } from 'notistack';
+
 const theme = createTheme({
 	colorSchemes: {
 		dark: true,
 	},
 });
 
-function App() {
+function Warp({ children }: { children: React.ReactNode }) {
+	return (
+		<ThemeProvider theme={theme}>
+			<SnackbarProvider maxSnack={3}>
+				{children}
+			</SnackbarProvider>
+		</ThemeProvider>
+	);
+}
+
+
+export default function App() {
 	const [open, setOpen] = useState(false);
 
 	useEffect(() => {
@@ -35,7 +48,7 @@ function App() {
 
 	return (
 		<>
-			<ThemeProvider theme={theme}>
+			<Warp>
 				<Router hook={useHashLocation}>
 					<ButtonAppBar />
 					<Drawer open={open} onClose={() => setOpen(false)}>
@@ -49,18 +62,16 @@ function App() {
 								</Route>
 							))}
 							<Route>
-								<Redirect to="/playlist" />
+								<Redirect to="/playlist/" />
 							</Route>
 						</Switch>
 					</Container>
 				</Router>
 				<Player />
-			</ThemeProvider>
+			</Warp>
 		</>
 	);
 }
-
-export default App;
 
 import Import from "./components/Import";
 import Playlist from "./components/Playlist";
@@ -79,7 +90,7 @@ const SETTINGS = [
 	},
 	{
 		name: "Music",
-		link: "/music/:uuid",
-		component: (params: any) => <MusicDetail uuid={params.uuid} />,
+		link: "/music/*",
+		component: <MusicDetail />,
 	},
 ]

@@ -7,7 +7,7 @@ import CardMedia from '@mui/material/CardMedia';
 import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
-import { Music } from '../core/models/music';
+import { Music, MusicParams } from '../core/models/music';
 import { bus } from '../core/bus';
 import SquareImage from './SquareImage';
 import { useEffect, useState } from 'react';
@@ -15,31 +15,36 @@ import { Link, useLocation } from 'wouter';
 import Button from '@mui/material/Button';
 import EditIcon from '@mui/icons-material/Edit';
 
-export default function MediaControlCard({ data }: { data: Music }) {
+interface PlaylistItemProps {
+    musicParams: MusicParams;
+    playlistUUID?: string;
+}
+
+export default function MediaControlCard({ musicParams, playlistUUID }: PlaylistItemProps) {
     const [imageSrc, setImageSrc] = useState<string>("/default-album-pic.jfif");
     const [location, navigate] = useLocation();
 
     useEffect(() => {
         (async () => {
-            const music = Music.fromParams(data);
+            const music = Music.fromParams(musicParams);
             const src = await music.getCoverSrc();
             setImageSrc(src);
         })();
-    }, [data]);
+    }, [musicParams]);
 
     return (
         <Card sx={{ display: 'flex', flexDirection: 'row' }} onClick={() => {
-            bus.emit('switchPlaylist', { obj: data });
-            navigate(`/music/${data.uuid}`);
+            bus.emit('switchPlaylist', { playlistUUID });
+            navigate(`/music/${musicParams.uuid}`);
         }}>
             <SquareImage src={imageSrc} width={"20%"} />
             <CardContent sx={{ flex: '1 0 auto', flexGrow: 1, textWrap: 'wrap', padding: 'unset' }}>
-                <strong>{data.title}</strong>
-                <div>{data.artist}</div>
-                <div>{data.album}</div>
+                <strong>{musicParams.title}</strong>
+                <div>{musicParams.artist}</div>
+                <div>{musicParams.album}</div>
                 <Button variant="contained" endIcon={<EditIcon />} onClick={(e) => {
                     e.stopPropagation();
-                    navigate(`/import/${data.uuid}`);
+                    navigate(`/import/${musicParams.uuid}`);
                 }}>
                     Edit
                 </Button>

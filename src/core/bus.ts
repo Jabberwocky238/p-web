@@ -6,8 +6,13 @@ interface ALL_EVENTS extends Record<EventType, unknown> {
         state: boolean,
     }
     "switchPlaylist": {
-        obj: MusicParams,
-    }
+        playlistUUID: string | undefined,
+    },
+    "switchMusic": {
+        musicUUID: string,
+        index: number,
+        direction: "next" | "prev",
+    },
 }
 
 type Bus = Emitter<ALL_EVENTS>;

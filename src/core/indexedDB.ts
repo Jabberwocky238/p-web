@@ -1,8 +1,27 @@
 import { IDBPDatabase, openDB } from 'idb';
 
 import { objectStores as music_objectStores } from './models/music';
+import { objectStores as playlist_objectStores } from './models/playlist';
 
 var instance: IDBwarpper;
+
+const upgradeTasks = [
+    (db: IDBPDatabase) => {
+        for (const store of music_objectStores) {
+            db.createObjectStore(store, { keyPath: 'uuid' });
+        }
+    },
+    (db: IDBPDatabase) => {
+        for (const store of playlist_objectStores) {
+            db.createObjectStore(store, { keyPath: 'uuid' });
+        }
+    },
+    (db: IDBPDatabase) => {
+        for (const store of playlist_objectStores) {
+            db.createObjectStore(store, { keyPath: 'uuid' });
+        }
+    }
+];
 
 export async function useDB() {
     if (instance) {
@@ -11,13 +30,17 @@ export async function useDB() {
     }
     var objectStoreConstructors = [] as string[];
     objectStoreConstructors.push(...music_objectStores);
+    objectStoreConstructors.push(...playlist_objectStores);
     // console.log('objectStoreConstructors', objectStoreConstructors);
 
-    const db = await openDB('myDatabase', 1.01, {
-        upgrade(db) {
-            for (const store of objectStoreConstructors) {
-                // console.log('upgrade', store);
-                db.createObjectStore(store, { keyPath: 'uuid' });
+    const db = await openDB('myDatabase', 3, {
+        upgrade(db, oldVersion, newVersion, transaction) {
+            if (!newVersion) {
+                return;
+            }
+            console.log('upgrade', oldVersion, newVersion);
+            for (let i = oldVersion; i < newVersion; i++) {
+                upgradeTasks[i](db);
             }
         },
         blocked() {
@@ -76,3 +99,4 @@ class _IDBwarpper<T> {
         return await this.db.getAll(this.objectStore);
     }
 }
+
