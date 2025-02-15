@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Music } from "../core/models/music";
 import { useDB } from "../core/indexedDB";
 import { Box, Stack } from "@mui/material";
-import { bus } from "../core/bus";
+import { bus, Handler } from "../core/bus";
 import { useRoute } from "wouter";
 import SquareImage from "../components/SquareImage";
 
@@ -21,22 +21,24 @@ export default function MusicDetail() {
             if (!ok) {
                 return;
             }
-            console.log(params.uuid);
+            // console.log(params.uuid);
             const { music, coverUrl } = await retrieveMusicMetadata(params.uuid);
             setMusic(music);
             setCoverUrl(coverUrl);
+
         })();
     }, [params && params.uuid]);
 
     useEffect(() => {
-        bus.on("switchMusic", ({ musicUUID, playlistUUID }) => {
+        const handler: Handler<'switchMusic'> = ({ musicUUID }) => {
             retrieveMusicMetadata(musicUUID).then(({ music, coverUrl }) => {
                 setMusic(music);
                 setCoverUrl(coverUrl);
             });
-        });
+        };
+        bus.on("switchMusic", handler);
         return () => {
-            bus.off("switchMusic");
+            bus.off("switchMusic", handler);
         }
     }, []);
 

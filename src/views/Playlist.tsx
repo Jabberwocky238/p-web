@@ -34,8 +34,6 @@ export default function BasicStack() {
         (async () => {
             if (ok) {
                 const uuid = params.uuid;
-                localStorage.setItem("playlistUUID", uuid);
-
                 const list = await Playlist.fromUUID(uuid);
                 if (!list) {
                     enqueueSnackbar("Playlist not found", { variant: "error" });
@@ -50,7 +48,6 @@ export default function BasicStack() {
                 }
                 setMusicList(musicList);
             } else {
-                localStorage.removeItem("playlistUUID");
                 const data = await Music.getAllMusic()
                 setMusicList(data);
             }

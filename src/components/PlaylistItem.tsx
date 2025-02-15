@@ -32,11 +32,17 @@ export default function MediaControlCard({ musicParams, playlistUUID }: Playlist
         })();
     }, [musicParams]);
 
+    const jump = () => {
+        bus.emit('switchMusic', {
+            musicUUID: musicParams.uuid,
+            playlistUUID: playlistUUID || null
+        });
+        console.log("MediaControlCard switchMusic", musicParams.uuid, playlistUUID);
+        navigate(`/music/${musicParams.uuid}`);
+    }
+
     return (
-        <Card sx={{ display: 'flex', flexDirection: 'row' }} onClick={() => {
-            bus.emit('switchMusic', { musicUUID: musicParams.uuid, playlistUUID });
-            navigate(`/music/${musicParams.uuid}`);
-        }}>
+        <Card sx={{ display: 'flex', flexDirection: 'row' }} onClick={jump}>
             <SquareImage src={imageSrc} width={"20%"} />
             <CardContent sx={{ flex: '1 0 auto', flexGrow: 1, textWrap: 'wrap', padding: 'unset' }}>
                 <strong>{musicParams.title}</strong>

@@ -147,11 +147,12 @@ export default function Settings() {
                                 const f = event.target.files[0]
                                 const f_name = f.name.split('.')[0]
                                 setAudioFile(f)
+                                const { title, artist, album } = autoSplitFileName(f_name)
                                 setMusicObj({
                                     ...musicObj,
-                                    title: f_name.split('-')[1],
-                                    artist: f_name.split('-')[0],
-                                    album: f_name.split('-')[0],
+                                    title,
+                                    artist,
+                                    album,
                                 })
                             }
                         }}
@@ -172,5 +173,22 @@ function computeFileSize(size: number) {
     } else {
         return `${(size / 1024 / 1024).toFixed(2)} MB`;
     }
+}
+
+function autoSplitFileName(name: string) {
+    let title;
+    let artist;
+    let album;
+    if (name.includes('-')) {
+        const parts = name.split('-');
+        artist = parts[0];
+        title = parts[1];
+        album = parts[0];
+    } else {
+        title = name;
+        artist = 'unknown';
+        album = 'unknown';
+    }
+    return { title, artist, album };
 }
 

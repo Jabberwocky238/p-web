@@ -10,8 +10,6 @@ const upgradeTasks = [
         for (const store of music_objectStores) {
             db.createObjectStore(store, { keyPath: 'uuid' });
         }
-    },
-    (db: IDBPDatabase) => {
         for (const store of playlist_objectStores) {
             db.createObjectStore(store, { keyPath: 'uuid' });
         }
@@ -23,8 +21,9 @@ export async function useDB() {
         // console.log('instance', instance);
         return instance;
     }
-    const db = await openDB('myDatabase', 2, {
+    const db = await openDB('myDatabase', 1, {
         upgrade(db, oldVersion, newVersion, transaction) {
+            console.log('upgrade', oldVersion, newVersion);
             if (!newVersion) {
                 return;
             }
@@ -33,7 +32,7 @@ export async function useDB() {
                 try {
                     upgradeTasks[i](db);
                 } catch (e) {
-                    alert(e);
+                    alert(`indexedDB upgrade error: ${e}, from ${oldVersion} to ${newVersion}`);
                 }
             }
         },

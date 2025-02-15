@@ -39,7 +39,7 @@ export default function DrawerList() {
             const playlists = await Playlist.getAll();
             setPlaylists(playlists);
         })();
-    }, []);
+    }, [openModal]);
 
     return (
         <>
