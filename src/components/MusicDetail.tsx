@@ -3,12 +3,15 @@ import { Music } from "../core/models/music";
 import { useDB } from "../core/indexedDB";
 import { Box, Stack } from "@mui/material";
 import { bus } from "../core/bus";
+import { useRoute } from "wouter";
 
 interface MusicDetailProps {
     uuid: string;
 }
 
 export default function MusicDetail({ uuid }: MusicDetailProps) {
+    const [ok, params] = useRoute("/playlist/:uuid");
+
     const [music, setMusic] = useState<Music | null>(null);
     const [coverUrl, setCoverUrl] = useState<string>("");
 
@@ -19,9 +22,7 @@ export default function MusicDetail({ uuid }: MusicDetailProps) {
             const cover = await music.getCoverSrc();
             setCoverUrl(cover);
 
-            bus.emit('switchPlaylist', {
-                obj: music
-            });
+            bus.emit('switchPlaylist', { obj: music });
         })();
     }, [uuid]);
 

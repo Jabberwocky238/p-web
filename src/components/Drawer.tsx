@@ -8,51 +8,49 @@ import InboxIcon from '@mui/icons-material/MoveToInbox';
 import MailIcon from '@mui/icons-material/Mail';
 import { Link } from 'wouter';
 import { ListItemText } from '@mui/material';
-import { SETTINGS } from '../core/route';
+import { bus } from '../core/bus';
 
-interface Props {
-    toggleDrawer: (newOpen: boolean) => () => void;
-}
+export const SETTINGS = [
+    {
+        name: "Import",
+        link: "/import/",
+    },
+    {
+        name: "Playlist",
+        link: "/playlist/",
+    },
+]
 
-export default function DrawerList({ toggleDrawer }: Props) {
+export default function DrawerList() {
     return (
         <Box sx={{ width: 250 }} role="presentation">
             <List>
                 {SETTINGS.map((obj, index) => (
-                    <ListItem key={obj.name} disablePadding>
-                        <ListItemButton>
-                            <ListItemIcon>
-                                {index % 2 === 0 ? <InboxIcon /> : <MailIcon />}
-                            </ListItemIcon>
-                            {/* <ListItemText primary={obj.name} onClick={() => {
-                                window.location.href = "/#" + obj.link;
-                                toggleDrawer(false)
-                            }} /> */}
-                            <Link
-                                href={obj.link}
-                            >
-                                {obj.name}
-                            </Link>
-                        </ListItemButton>
-                    </ListItem>
+                    <Link key={obj.name} href={obj.link} >
+                        <ListItem key={obj.name} disablePadding onClick={() => {
+                            bus.emit("toggleDrawer", { state: false });
+                        }} >
+                            <ListItemButton>
+                                <ListItemIcon>
+                                    {index % 2 === 0 ? <InboxIcon /> : <MailIcon />}
+                                </ListItemIcon>
+                                <ListItemText primary={obj.name} />
+                            </ListItemButton>
+                        </ListItem>
+                    </Link>
                 ))}
             </List>
             <Divider />
-            <List>
+            {/* <List>
                 <ListItem key={"addPlaylist"} disablePadding>
                     <ListItemButton>
                         <ListItemIcon>
                             <InboxIcon />
                         </ListItemIcon>
-                        {/* <ListItemText primary={text} /> */}
-                        <Link
-                            href={`/`}
-                        >
-                            New Playlist
-                        </Link>
+                        <ListItemText primary={text} />
                     </ListItemButton>
                 </ListItem>
-            </List>
+            </List> */}
         </Box>
     );
 }

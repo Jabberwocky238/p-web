@@ -1,14 +1,15 @@
-import mitt, { Emitter } from "mitt";
+import mitt, { Emitter, EventType } from "mitt";
 import { MusicParams } from "./models/music";
 
-interface _EVENTS {
+interface ALL_EVENTS extends Record<EventType, unknown> {
+    "toggleDrawer": {
+        state: boolean,
+    }
     "switchPlaylist": {
         obj: MusicParams,
     }
 }
 
-type EVENTS = _EVENTS[keyof _EVENTS];
-
-type Bus = Emitter<Record<keyof _EVENTS, EVENTS>>;
+type Bus = Emitter<ALL_EVENTS>;
 
 export const bus: Bus = mitt();

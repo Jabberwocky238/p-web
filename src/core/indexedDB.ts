@@ -40,12 +40,12 @@ export class IDBwarpper {
         this.db = db;
     }
 
-    create(objectStore: string) {
-        return new _IDBwarpper(this.db, objectStore);
+    create<T>(objectStore: string) {
+        return new _IDBwarpper<T>(this.db, objectStore);
     }
 }
 
-class _IDBwarpper {
+class _IDBwarpper<T> {
     private db: IDBPDatabase;
     private objectStore: string;
     constructor(db: IDBPDatabase, objectStore: string) {
@@ -53,15 +53,15 @@ class _IDBwarpper {
         this.objectStore = objectStore
     }
 
-    async addData<T>(data: T) {
+    async addData(data: T) {
         return await this.db.add(this.objectStore, data);
     }
 
-    async getData(id: string) {
+    async getData(id: string): Promise<T | undefined> {
         return await this.db.get(this.objectStore, id);
     }
 
-    async putData<T>(id: string, data: T) {
+    async putData(id: string, data: T) {
         return await this.db.put(this.objectStore, {
             ...data,
             uuid: id,

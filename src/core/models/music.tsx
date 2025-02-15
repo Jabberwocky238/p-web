@@ -1,11 +1,11 @@
 import { useDB } from "../indexedDB";
 
 export interface MusicParams {
-    uuid: string,
+    readonly uuid: string,
     title: string,
     artist: string,
     album: string,
-    version: string,
+    readonly version: string,
 }
 
 function _MusicBuilder(data: MusicParams): Music {
@@ -28,9 +28,12 @@ export class Music {
         public version: string,
     ) { }
 
-    static async fromUUID(uuid: string): Promise<Music> {
+    static async fromUUID(uuid: string): Promise<Music | undefined> {
         const db = await useDB();
-        const metadata = await db.create(MUSIC_METADATA).getData(uuid) as MusicParams;
+        const metadata = await db.create<MusicParams>(MUSIC_METADATA).getData(uuid);
+        if (!metadata) {
+            return undefined;
+        }
         return _MusicBuilder(metadata);
     }
 
@@ -46,8 +49,7 @@ export class Music {
 
     async dumpToDB(file: File, cover?: File | null) {
         const db = await useDB();
-        await db.create(MUSIC_METADATA).addData({
-            uuid: this.uuid,
+        await db.create(MUSIC_METADATA).putData(this.uuid, {
             title: this.title,
             artist: this.artist,
             album: this.album,
@@ -70,11 +72,19 @@ export class Music {
         return URL.createObjectURL(data.blob);
     }
 
+    async getSrcFile(): Promise<File> {
+        const db = await useDB();
+        const data = await db.create(MUSIC_BLOB).getData(this.uuid) as {
+            blob: File,
+        };
+        return data.blob;
+    }
+
     async getCoverSrc(): Promise<string> {
         const db = await useDB();
         const blob = await db.create(MUSIC_COVER).getData(this.uuid) as {
             ty: string,
-            cover: Blob | string,
+            cover: File | string,
         };
         if (blob.ty === "string") {
             return blob.cover as string;
@@ -82,6 +92,23 @@ export class Music {
             return URL.createObjectURL(blob.cover as Blob);
         } else {
             return "/default-album-pic.jfif";
+        }
+    }
+
+    async getCoverFile(): Promise<File> {
+        const db = await useDB();
+        const blob = await db.create(MUSIC_COVER).getData(this.uuid) as {
+            ty: string,
+            cover: File | string,
+        };
+        if (blob.ty === "string") {
+            const coverBlob = await fetch(blob.cover as string).then(res => res.blob());
+            return coverBlob as File;
+        } else if (blob.ty === "blob") {
+            return blob.cover as File;
+        } else {
+            const coverBlob = await fetch("/default-album-pic.jfif").then(res => res.blob());
+            return coverBlob as File;
         }
     }
 }

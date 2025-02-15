@@ -70,13 +70,10 @@ import ContentCopy from '@mui/icons-material/ContentCopy';
 import ContentPaste from '@mui/icons-material/ContentPaste';
 import Cloud from '@mui/icons-material/Cloud';
 import { Link } from 'wouter';
+import { bus } from '../core/bus';
 
 
-interface Props {
-    toggleDrawer: (newOpen: boolean) => () => void;
-}
-
-export default function ButtonAppBar({ toggleDrawer }: Props) {
+export default function ButtonAppBar() {
     return (
         <AppBar position="sticky">
             <Toolbar>
@@ -86,7 +83,9 @@ export default function ButtonAppBar({ toggleDrawer }: Props) {
                     color="inherit"
                     aria-label="menu"
                     sx={{ mr: 2 }}
-                    onClick={toggleDrawer(true)}
+                    onClick={() => {
+                        bus.emit("toggleDrawer", { state: true });
+                    }}
                 >
                     <MenuIcon />
                 </IconButton>

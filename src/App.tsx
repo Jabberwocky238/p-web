@@ -1,14 +1,13 @@
 import { useEffect, useState } from "react";
-import { Redirect, Route, Router } from "wouter";
+import { Redirect, Route, Router, Switch } from "wouter";
 import ButtonAppBar from "./components/TopBar";
 import { Container, Drawer } from "@mui/material";
 import DrawerList from "./components/Drawer";
 import { useHashLocation } from "wouter/use-hash-location";
 import { ThemeProvider, createTheme } from '@mui/material';
 import Player from "./components/Player";
-import { SETTINGS } from "./core/route";
 import { useDB } from "./core/indexedDB";
-
+import { bus } from "./core/bus";
 
 const API_BASE_URL = process.env.BACKEND_API;
 
@@ -19,43 +18,40 @@ const theme = createTheme({
 });
 
 function App() {
-	// const [tracks, setTracks] = useState<any[]>();
 	const [open, setOpen] = useState(false);
-
-	const toggleDrawer = (newOpen: boolean) => () => {
-		setOpen(newOpen);
-		// Notification.requestPermission().then(function (result) {
-		// 	if (result === "granted") {
-		// 		randomNotification();
-		// 	}
-		// });
-	};
 
 	useEffect(() => {
 		(async () => {
 			await useDB();
 		})();
+
+		bus.on("toggleDrawer", (payload) => {
+			setOpen(payload.state);
+		});
+		return () => {
+			bus.off("toggleDrawer");
+		}
 	}, []);
 
 	return (
 		<>
 			<ThemeProvider theme={theme}>
 				<Router hook={useHashLocation}>
-					<ButtonAppBar
-						toggleDrawer={toggleDrawer}
-					/>
-					<Drawer open={open} onClose={toggleDrawer(false)}>
-						<DrawerList toggleDrawer={toggleDrawer} />
+					<ButtonAppBar />
+					<Drawer open={open} onClose={() => setOpen(false)}>
+						<DrawerList />
 					</Drawer>
 					<Container sx={{ flexGrow: 1 }}>
-						<Router>
+						<Switch>
 							{SETTINGS.map((obj) => (
 								<Route path={obj.link} key={obj.name}>
 									{obj.component}
 								</Route>
 							))}
-							<Redirect to="/playlist" replace />
-						</Router>
+							<Route>
+								<Redirect to="/playlist" />
+							</Route>
+						</Switch>
 					</Container>
 				</Router>
 				<Player />
@@ -66,3 +62,24 @@ function App() {
 
 export default App;
 
+import Import from "./components/Import";
+import Playlist from "./components/Playlist";
+import MusicDetail from "./components/MusicDetail";
+
+const SETTINGS = [
+	{
+		name: "Import",
+		link: "/import/*",
+		component: <Import />,
+	},
+	{
+		name: "Playlist",
+		link: "/playlist/*",
+		component: <Playlist />,
+	},
+	{
+		name: "Music",
+		link: "/music/:uuid",
+		component: (params: any) => <MusicDetail uuid={params.uuid} />,
+	},
+]
