@@ -77,6 +77,17 @@ export default function () {
             setIndex(index);
         }
         const music = musicList[index];
+        // 修改html title，meta，icon
+        document.title = music.title;
+        const link = document.querySelector("link[rel~='icon']");
+        if (link) {
+            link.setAttribute('href', await music.getCoverSrc());
+        }
+        const meta = document.querySelector('meta[name="description"]');
+        if (meta) {
+            meta.setAttribute('content', music.title);
+        }
+
         // console.log("Player music", musicList, index, music);
         const src = await music.getSrc();
         setSrcComputed(src);
@@ -125,7 +136,7 @@ export default function () {
                 onClickNext={() => {
                     switchMusic("next");
                 }}
-                onPlay={e => console.log("onPlay")}
+            // onPlay={e => console.log("onPlay")}
             />
         </div>
     );
