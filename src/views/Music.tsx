@@ -1,20 +1,19 @@
 import { useEffect, useMemo, useState } from "react";
 import { Music } from "../core/models/music";
-import { useDB } from "../core/indexedDB";
-import { Box, Stack } from "@mui/material";
 import { bus, Handler } from "../core/bus";
-import { useRoute } from "wouter";
+import { useLocation, useRoute } from "wouter";
 import SquareImage from "../components/SquareImage";
-
-interface MusicDetailProps {
-    uuid: string;
-}
+import Chip from "@mui/material/Chip";
+import FaceIcon from '@mui/icons-material/Face';
+import Stack from "@mui/material/Stack";
+import EditIcon from '@mui/icons-material/Edit';
 
 export default function MusicDetail() {
     const [ok, params] = useRoute("/music/:uuid");
 
     const [music, setMusic] = useState<Music | null>(null);
     const [coverUrl, setCoverUrl] = useState<string>("");
+    const [location, navigate] = useLocation();
 
     useEffect(() => {
         (async () => {
@@ -25,7 +24,6 @@ export default function MusicDetail() {
             const { music, coverUrl } = await retrieveMusicMetadata(params.uuid);
             setMusic(music);
             setCoverUrl(coverUrl);
-
         })();
     }, [params && params.uuid]);
 
@@ -42,24 +40,49 @@ export default function MusicDetail() {
         }
     }, []);
 
+    const handleClick = async () => {
+        console.log("You clicked the Chip.");
+        const data = await music?.upload();
+        console.log(data);
+    }
+
     return (
         <>
             {music && (
-                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                <Stack spacing={2} sx={{ alignItems: 'center' }}>
                     <SquareImage src={coverUrl} width={'360px'} alt={music.title} />
                     <strong>{music.title}</strong>
-                </div>
+
+                    <Stack direction="row" spacing={1}>
+                        <Chip
+                            icon={<FaceIcon />}
+                            label={"Not Uploaded Yet"}
+                            onClick={handleClick}
+                            color={"default"}
+                        />
+                        <Chip
+                            icon={<EditIcon />}
+                            label="Edit"
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                navigate(`/import/${music.uuid}`);
+                            }}
+                            color="primary"
+                        />
+                    </Stack>
+
+                </Stack>
             )}
         </>
     );
 }
 
 async function retrieveMusicMetadata(uuid: string) {
-    const music = await Music.fromUUID(uuid);
+    const music = await Music.fromLocalUUID(uuid);
     if (!music) {
         throw new Error("Music not found");
     }
-    const coverUrl = await music.getCoverSrc();
+    const coverUrl = await music.coverUrl();
     return { music, coverUrl } as {
         music: Music,
         coverUrl: string,

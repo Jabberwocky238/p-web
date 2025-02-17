@@ -89,9 +89,7 @@ export default function ButtonAppBar() {
                 >
                     <MenuIcon />
                 </IconButton>
-                <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-                    Photos
-                </Typography>
+                <CustomSeparator />
                 {/* <Search>
                     <SearchIconWrapper>
                         <SearchIcon />
@@ -167,4 +165,28 @@ function UserSetting() {
             </Menu>
         </>
     )
+}
+
+import Breadcrumbs from '@mui/material/Breadcrumbs';
+import NavigateNextIcon from '@mui/icons-material/NavigateNext';
+
+
+function CustomSeparator() {
+    const breadcrumbs = [
+        <Typography key="2" sx={{ color: 'text.primary' }}>
+            Breadcrumb
+        </Typography>,
+        <Typography key="3" sx={{ color: 'text.primary' }}>
+            Breadcrumb
+        </Typography>,
+    ];
+
+    return (
+        <Breadcrumbs
+            separator={<NavigateNextIcon fontSize="small" />}
+            aria-label="breadcrumb"
+        >
+            {breadcrumbs}
+        </Breadcrumbs>
+    );
 }

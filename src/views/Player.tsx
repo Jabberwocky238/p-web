@@ -41,7 +41,7 @@ export default function () {
         let musicList: Music[] = tracks;
         if (!playlistUUID) {
             // 清空选择
-            musicList = await Music.getAllMusic();
+            musicList = await Music.getAllLocalMusic();
             setTracks(musicList);
         } else if (
             (playlistUUID !== localStorage.getItem('playlistUUID')) || // 修改了playlist
@@ -55,7 +55,7 @@ export default function () {
             }
             musicList = [];
             for (const uuid of playlist.contains) {
-                const music = await Music.fromUUID(uuid);
+                const music = await Music.fromLocalUUID(uuid);
                 if (music) {
                     musicList.push(music);
                 }
@@ -77,11 +77,15 @@ export default function () {
             setIndex(index);
         }
         const music = musicList[index];
+        if (!music) {
+            enqueueSnackbar(`404 Music not found, uuid: ${musicUUID}`, { variant: "error" });
+            return;
+        }
         // 修改html title，meta，icon
         document.title = music.title;
         const link = document.querySelector("link[rel~='icon']");
         if (link) {
-            link.setAttribute('href', await music.getCoverSrc());
+            link.setAttribute('href', music.thumbUrl);
         }
         const meta = document.querySelector('meta[name="description"]');
         if (meta) {
@@ -89,7 +93,7 @@ export default function () {
         }
 
         // console.log("Player music", musicList, index, music);
-        const src = await music.getSrc();
+        const src = await music.musicUrl();
         setSrcComputed(src);
     }
 

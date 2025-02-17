@@ -94,7 +94,7 @@ button:focus-visible {
 }
 
 @media (max-width: 768px) {
-  .square-image {
+  .square-image.force-square {
     width: 130px !important;
   }
 }

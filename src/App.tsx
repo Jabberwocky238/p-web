@@ -7,9 +7,7 @@ import { useHashLocation } from "wouter/use-hash-location";
 import { ThemeProvider, createTheme } from '@mui/material';
 import Player from "@/views/Player";
 import { useDB } from "./core/indexedDB";
-import { bus } from "./core/bus";
-
-const API_BASE_URL = process.env.BACKEND_API;
+import { bus, Handler } from "./core/bus";
 
 import { SnackbarProvider } from 'notistack';
 
@@ -37,12 +35,12 @@ export default function App() {
 		(async () => {
 			await useDB();
 		})();
-
-		bus.on("toggleDrawer", (payload) => {
+		const toggle: Handler<'toggleDrawer'> = (payload) => {
 			setOpen(payload.state);
-		});
+		}
+		bus.on("toggleDrawer", toggle);
 		return () => {
-			bus.off("toggleDrawer");
+			bus.off("toggleDrawer", toggle);
 		}
 	}, []);
 
@@ -76,6 +74,8 @@ export default function App() {
 import Import from "@/views/Import";
 import Playlist from "@/views/Playlist";
 import MusicDetail from "@/views/Music";
+import Settings from "@/views/Settings";
+import Global from "./views/Global";
 
 const SETTINGS = [
 	{
@@ -89,8 +89,18 @@ const SETTINGS = [
 		component: <Playlist />,
 	},
 	{
+		name: "Global",
+		link: "/global",
+		component: <Global />,
+	},
+	{
 		name: "Music",
 		link: "/music/*",
 		component: <MusicDetail />,
 	},
+	{
+		name: "Settings",
+		link: "/settings/",
+		component: <Settings />,
+	}
 ]

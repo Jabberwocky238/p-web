@@ -14,6 +14,7 @@ import React from 'react';
 import NewPlaylistModal from '@@/NewPlaylistModal';
 import { Playlist } from '@/core/models/playlist';
 
+
 export const SETTINGS = [
     {
         name: "Import",
@@ -23,6 +24,14 @@ export const SETTINGS = [
         name: "Local",
         link: "/playlist/",
     },
+    {
+        name: "Global",
+        link: "/global",
+    },
+    {
+        name: "Settings",
+        link: "/settings/",
+    }
 ]
 
 export default function DrawerList() {

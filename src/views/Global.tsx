@@ -25,52 +25,26 @@ const Item = styled(Paper)(({ theme }) => ({
 }));
 
 export default function BasicStack() {
-    const [ok, params] = useRoute("/playlist/:uuid");
     const [musicList, setMusicList] = React.useState<Music[]>([]);
-    const [showModal, setShowModal] = React.useState(false);
-    const { enqueueSnackbar } = useSnackbar();
 
     React.useEffect(() => {
         (async () => {
-            if (ok) {
-                const uuid = params.uuid;
-                const list = await Playlist.fromUUID(uuid);
-                if (!list) {
-                    enqueueSnackbar("Playlist not found", { variant: "error" });
-                    return;
-                }
-                let musicList: Music[] = [];
-                for (const uuid of list.contains) {
-                    const music = await Music.fromLocalUUID(uuid);
-                    if (music) {
-                        musicList.push(music);
-                    }
-                }
-                setMusicList(musicList);
-            } else {
-                const data = await Music.getAllLocalMusic()
-                setMusicList(data);
-            }
+            const data = await Music.getAllRemoteMusic()
+            setMusicList(data);
         })();
-    }, [params && params!.uuid]);
+    }, []);
 
     return (
         <>
             <Box sx={{ width: '100%' }}>
-                {ok && <Button onClick={() => setShowModal(true)}>Edit Playlist</Button>}
                 <Stack spacing={2}>
                     {musicList.map((music) => (
                         <Item key={music.uuid}>
-                            <MediaControlCard musicParams={music} playlistUUID={ok ? params.uuid : undefined} />
+                            <MediaControlCard musicParams={music} playlistUUID={undefined} />
                         </Item>
                     ))}
                 </Stack>
             </Box>
-            {ok && params.uuid && <PlaylistContainModal
-                open={showModal}
-                handleClose={() => setShowModal(false)}
-                uuid={params.uuid}
-            />}
         </>
     );
 }

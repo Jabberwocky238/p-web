@@ -2,15 +2,16 @@ import React, { ComponentPropsWithoutRef } from 'react';
 
 type SquareImageProps = ComponentPropsWithoutRef<'img'> & {
     width?: string | number;
+    forceSquare?: boolean;
 };
 
-const SquareImage = ({ width, style, ...props }: SquareImageProps) => {
+const SquareImage = ({ width, style, forceSquare, ...props }: SquareImageProps) => {
     const formattedWidth = typeof width === 'number' ? `${width}px` : width;
 
     return (
         <img
             {...props}
-            className='square-image'
+            className={'square-image ' + (forceSquare ? 'force-square' : '')}
             style={{
                 ...style,
                 width: formattedWidth || '100%',

@@ -14,6 +14,7 @@ import { useEffect, useState } from 'react';
 import { Link, useLocation } from 'wouter';
 import Button from '@mui/material/Button';
 import EditIcon from '@mui/icons-material/Edit';
+import ButtonGroup from '@mui/material/ButtonGroup';
 
 interface PlaylistItemProps {
     musicParams: MusicParams;
@@ -21,40 +22,58 @@ interface PlaylistItemProps {
 }
 
 export default function MediaControlCard({ musicParams, playlistUUID }: PlaylistItemProps) {
-    const [imageSrc, setImageSrc] = useState<string>("/default-album-pic.jfif");
+    const [thumb, setThumb] = useState<string>("/default-album-pic.jfif");
     const [location, navigate] = useLocation();
 
     useEffect(() => {
         (async () => {
-            const music = Music.fromParams(musicParams);
-            const src = await music.getCoverSrc();
-            setImageSrc(src);
+            const music = await Music.fromParams(musicParams);
+            setThumb(music.thumbUrl);
         })();
     }, [musicParams]);
 
-    const jump = () => {
-        bus.emit('switchMusic', {
-            musicUUID: musicParams.uuid,
-            playlistUUID: playlistUUID || null
-        });
-        console.log("MediaControlCard switchMusic", musicParams.uuid, playlistUUID);
+    const jump = async () => {
+        if (localStorage.getItem('musicUUID') === musicParams.uuid) {
+            // 如果点击的是当前正在播放的音乐，不做任何操作
+        } else {
+            // 如果拿的是远程的音乐，就先fetch再播放
+            if (musicParams.location === "Remote") {
+                const music = await Music.fromParams(musicParams);
+                const musicBlob = await music.musicBlob();
+                const coverBlob = await music.coverBlob();
+                await music.dumpToDB(musicBlob, coverBlob);
+            }
+            bus.emit('switchMusic', {
+                musicUUID: musicParams.uuid,
+                playlistUUID: playlistUUID || null
+            });
+            // console.log("MediaControlCard switchMusic", musicParams.uuid, playlistUUID);
+        }
         navigate(`/music/${musicParams.uuid}`);
     }
 
     return (
         <Card sx={{ display: 'flex', flexDirection: 'row' }} onClick={jump}>
-            <SquareImage src={imageSrc} width={"20%"} />
+            <SquareImage src={thumb} width={"20%"} />
             <CardContent sx={{ flex: '1 0 auto', flexGrow: 1, textWrap: 'wrap', padding: 'unset' }}>
                 <strong>{musicParams.title}</strong>
                 <div>{musicParams.artist}</div>
                 <div>{musicParams.album}</div>
-                <Button variant="contained" endIcon={<EditIcon />} onClick={(e) => {
+            </CardContent>
+            {/* <ButtonGroup
+                orientation="vertical"
+                variant="text"
+                sx={{ justifyContent: 'center' }}
+            >
+                <IconButton key="one" onClick={(e) => {
                     e.stopPropagation();
                     navigate(`/import/${musicParams.uuid}`);
                 }}>
-                    Edit
-                </Button>
-            </CardContent>
+                    <EditIcon />
+                </IconButton >
+                <IconButton key="two">Two</IconButton >
+                <IconButton key="three">Three</IconButton >
+            </ButtonGroup> */}
         </Card>
     );
 }

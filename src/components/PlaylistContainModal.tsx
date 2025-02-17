@@ -34,12 +34,12 @@ function MyTransferList({ uuid, setContains }: TransferListProps) {
             }
             const contained: Music[] = [];
             for (const uuid of list.contains) {
-                const music = await Music.fromUUID(uuid);
+                const music = await Music.fromLocalUUID(uuid);
                 if (music) {
                     contained.push(music);
                 }
             }
-            const all = await Music.getAllMusic();
+            const all = await Music.getAllLocalMusic();
             const notContained = all
                 .map((music) => music.uuid)
                 .filter((uuid) => !list.contains.includes(uuid))

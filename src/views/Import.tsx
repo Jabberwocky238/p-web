@@ -33,20 +33,22 @@ export default function Settings() {
         artist: "",
         album: "",
         version: "1.0.0",
+        thumbUrl: "",
+        location: "Local",
     });
 
     React.useEffect(() => {
         if (ok) {
             const uuid = params.uuid;
             async function fetchData() {
-                const music = await Music.fromUUID(uuid);
+                const music = await Music.fromLocalUUID(uuid);
                 if (music) {
                     console.log("has music", music);
 
                     setMusicObj(music);
-                    const cover = await music.getCoverFile();
+                    const cover = await music.coverBlob();
                     setImageFile(cover);
-                    const blob = await music.getSrcFile();
+                    const blob = await music.musicBlob();
                     setAudioFile(blob);
                 } else {
                     console.log("no music");
@@ -67,7 +69,7 @@ export default function Settings() {
         if (disableSubmit) {
             return;
         }
-        const music = Music.fromParams(musicObj);
+        const music = await Music.fromParams(musicObj);
         await music.dumpToDB(audioFile!, imageFile);
         enqueueSnackbar('Success', { variant: 'success' });
         navigate('/playlist/');

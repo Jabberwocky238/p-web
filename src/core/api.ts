@@ -18,8 +18,10 @@ export async function getPlaylist(uuid: string) {
     return data;
 }
 
+
 export async function getMusicBlobUrl(uuid: string) {
     const res = await fetch(`http://localhost:23891/music/blob?uuid=${uuid}`)
     const data = await res.json();
     return data.url as string;
 }
+

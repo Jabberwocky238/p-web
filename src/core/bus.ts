@@ -21,10 +21,10 @@ class BusManager {
         for (const event in AllEvents) {
             const k = event as KeyTy;
             this.listenersMap.set(k, []);
-            console.log("BusManager: Registering event", k);
+            console.log("[BusManager] constructor: Registering event", k);
             this.bus.on(k, (e) => {
                 const listeners = this.listenersMap.get(k) || [];
-                console.log("BusManager: bus resolve Event", k, listeners.length);
+                console.log(`[BusManager] mitt resolve: ${k}, total: ${listeners.length}`);
                 listeners.forEach((handler) => {
                     handler(e as any);
                 });
@@ -40,16 +40,19 @@ class BusManager {
     off<K extends KeyTy>(type: K, listener: Handler<K>) {
         const listeners = this.listenersMap.get(type);
         if (!listeners) {
+            console.error("[BusManager]: listeners not found for", type);
             return;
         }
         const index = listeners.indexOf(listener);
         if (index !== -1) {
             listeners.splice(index, 1);
+        } else {
+            console.error(`[BusManager]: '${type}' listener off failed`, listener);
         }
         this.listenersMap.set(type, listeners);
     }
     emit<K extends KeyTy>(type: K, event: PayloadTy<K>) {
-        console.log("BusManager: Emitting event", type, event);
+        console.log("[BusManager] emit:", type, event);
         this.bus.emit(type, event);
     }
 }
