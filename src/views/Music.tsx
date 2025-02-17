@@ -7,6 +7,7 @@ import Chip from "@mui/material/Chip";
 import FaceIcon from '@mui/icons-material/Face';
 import Stack from "@mui/material/Stack";
 import EditIcon from '@mui/icons-material/Edit';
+import { useSnackbar } from "notistack";
 
 export default function MusicDetail() {
     const [ok, params] = useRoute("/music/:uuid");
@@ -14,6 +15,7 @@ export default function MusicDetail() {
     const [music, setMusic] = useState<Music | null>(null);
     const [coverUrl, setCoverUrl] = useState<string>("");
     const [location, navigate] = useLocation();
+    const { enqueueSnackbar } = useSnackbar();
 
     useEffect(() => {
         (async () => {
@@ -41,9 +43,19 @@ export default function MusicDetail() {
     }, []);
 
     const handleClick = async () => {
-        console.log("You clicked the Chip.");
-        const data = await music?.upload();
-        console.log(data);
+        // console.log("You clicked the Chip.");
+        enqueueSnackbar("Uploading music...Plz Wait", { variant: "info" });
+        try {
+            const data = await music?.upload();
+            if (data?.status !== 200) {
+                enqueueSnackbar("You have already uploaded", { variant: "info" });
+            } else {
+                enqueueSnackbar("Upload success", { variant: "success" });
+            }
+        } catch (error) {
+            enqueueSnackbar("Upload failed", { variant: "error" });
+        }
+        // console.log(data);
     }
 
     return (
@@ -56,7 +68,7 @@ export default function MusicDetail() {
                     <Stack direction="row" spacing={1}>
                         <Chip
                             icon={<FaceIcon />}
-                            label={"Not Uploaded Yet"}
+                            label={"Upload"}
                             onClick={handleClick}
                             color={"default"}
                         />
