@@ -116,11 +116,11 @@ export default function Settings() {
                         onChange={(event) => {
                             // console.log(event.target.files)
                             if (event.target.files) {
-                                const size = event.target.files[0].size
-                                if (size > _2MB) {
-                                    alert('File size should be smaller than 2MB')
-                                    return
-                                }
+                                // const size = event.target.files[0].size
+                                // if (size > _2MB) {
+                                //     alert('File size should be smaller than 2MB')
+                                //     return
+                                // }
                                 setImageFile(event.target.files[0])
                             }
                         }}
