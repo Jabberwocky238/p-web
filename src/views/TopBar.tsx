@@ -69,7 +69,7 @@ import ContentCut from '@mui/icons-material/ContentCut';
 import ContentCopy from '@mui/icons-material/ContentCopy';
 import ContentPaste from '@mui/icons-material/ContentPaste';
 import Cloud from '@mui/icons-material/Cloud';
-import { Link } from 'wouter';
+import { Link, useLocation } from 'wouter';
 import { BUS } from '@/core/bus';
 
 
@@ -90,7 +90,7 @@ export default function ButtonAppBar() {
                     <MenuIcon />
                 </IconButton>
                 <CustomSeparator />
-                {/* <Search>
+                <Search>
                     <SearchIconWrapper>
                         <SearchIcon />
                     </SearchIconWrapper>
@@ -98,7 +98,7 @@ export default function ButtonAppBar() {
                         placeholder="Search…"
                         inputProps={{ 'aria-label': 'search' }}
                     />
-                </Search> */}
+                </Search>
                 {/* <Box sx={{ flexGrow: 0 }}>
                     <UserSetting />
                 </Box> */}
@@ -172,21 +172,24 @@ import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 
 
 function CustomSeparator() {
-    const breadcrumbs = [
-        <Typography key="2" sx={{ color: 'text.primary' }}>
-            Breadcrumb
-        </Typography>,
-        <Typography key="3" sx={{ color: 'text.primary' }}>
-            Breadcrumb
-        </Typography>,
-    ];
+    const [location, navigate] = useLocation();
+    const [breadcrumbs, setBreadcrumbs] = React.useState<string[]>([]);
+
+    React.useEffect(() => {
+        const path = location.split("/");
+        setBreadcrumbs(path);
+    }, [location]);
 
     return (
         <Breadcrumbs
             separator={<NavigateNextIcon fontSize="small" />}
             aria-label="breadcrumb"
         >
-            {breadcrumbs}
+            {breadcrumbs.map((bbb, index) => (
+                <Typography key={index + 1} sx={{ color: 'text.primary' }}>
+                    {bbb}
+                </Typography>
+            ))}
         </Breadcrumbs>
     );
 }

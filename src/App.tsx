@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Redirect, Route, Router, Switch } from "wouter";
-import ButtonAppBar from "./components/TopBar";
+import ButtonAppBar from "./views/TopBar";
 import { Container, Drawer } from "@mui/material";
 import DrawerList from "@/views/Drawer";
 import { useHashLocation } from "wouter/use-hash-location";

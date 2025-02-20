@@ -13,6 +13,9 @@ export interface MusicParams {
     version: string,
     thumbUrl: string,
     location: MusicLocation,
+    properties: {
+        [key: string]: string,
+    }
 }
 
 export interface MusicActions {
@@ -36,6 +39,9 @@ export class Music implements MusicActions, MusicParams {
     version: string;
     thumbUrl: string;
     location: MusicLocation;
+    properties: {
+        [key: string]: string;
+    } = {};
 
     constructor(
         private params: MusicParams,
@@ -129,16 +135,6 @@ export class Music implements MusicActions, MusicParams {
         });
     }
 
-    async upload() {
-        const { uuid, exist } = await checkRemoteExist(this.uuid);
-        if (exist) {
-            return {
-                status: 204,
-            }
-        }
-        const data = await uploadMusic(this);
-        return data;
-    }
     async musicUrl(): Promise<string> {
         return this.adapter.musicUrl();
     }

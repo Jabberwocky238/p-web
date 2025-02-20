@@ -1,9 +1,11 @@
 import { Music, MusicActions, MusicParams } from ".";
 
+const API_BASE_URL = process.env.BACKEND_API!;
+
 export class RemoteMusicAdapter implements MusicActions {
     constructor(
         public uuid: string,
-        public apiBaseUrl: string
+        public apiBaseUrl: string = API_BASE_URL
     ) { }
 
     async coverUrl() {
@@ -24,6 +26,17 @@ export class RemoteMusicAdapter implements MusicActions {
     async musicBlob() {
         // request to backend
         return await musicBlob(this.apiBaseUrl, this.uuid);
+    }
+
+    static async upload(music: Music) {
+        const { uuid, exist } = await checkRemoteExist(music.uuid);
+        if (exist) {
+            return {
+                status: 204,
+            }
+        }
+        const data = await uploadMusic(music);
+        return data;
     }
 }
 
@@ -94,7 +107,7 @@ async function musicBlob(api: string, uuid: string) {
     return blob as File;
 }
 
-const API_BASE_URL = process.env.BACKEND_API;
+
 
 export async function checkRemoteExist(uuid: string) {
     const url = `${API_BASE_URL}/music/exists?uuid=${uuid}`;

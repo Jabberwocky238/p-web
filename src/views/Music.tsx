@@ -8,6 +8,7 @@ import FaceIcon from '@mui/icons-material/Face';
 import Stack from "@mui/material/Stack";
 import EditIcon from '@mui/icons-material/Edit';
 import { Notify } from "@/core/notify";
+import { RemoteMusicAdapter } from "@/core/models/music/remote-adapter";
 
 export default function MusicDetail() {
     const [ok, params] = useRoute("/music/:uuid");
@@ -46,7 +47,7 @@ export default function MusicDetail() {
         // enqueueSnackbar("Uploading music...Plz Wait", { variant: "info" });
         Notify.info("Uploading music...Plz Wait");
         try {
-            const data = await music?.upload();
+            const data = await RemoteMusicAdapter.upload(music!);
             if (data?.status !== 200) {
                 // enqueueSnackbar("You have already uploaded", { variant: "info" });
                 Notify.info("You have already uploaded");
