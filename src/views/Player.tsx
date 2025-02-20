@@ -39,76 +39,86 @@ export default function () {
     async function fetchMusic(musicUUID: string, playlistUUID: string | null) {
         // console.log("Player fetchMusic", musicUUID, playlistUUID);
         // 判断是否修改了playlist
-        let musicList: Music[] = tracks;
-        if (!playlistUUID) {
-            // 清空选择
-            musicList = await Music.getAllLocalMusic();
-            setTracks(musicList);
-        } else if (
-            (playlistUUID !== localStorage.getItem('playlistUUID')) || // 修改了playlist
-            (musicList.length === 0) // 首次加载
-        ) {
-            // 更新选择
-            const playlist = await Playlist.fromUUID(playlistUUID);
-            if (!playlist) {
-                // enqueueSnackbar(`404 Playlist not found, uuid: ${playlistUUID}`, { variant: "error" });
-                Notify.error(`404 Playlist not found, uuid: ${playlistUUID}`);
-                return;
-            }
-            musicList = [];
-            for (const uuid of playlist.contains) {
-                const music = await Music.fromLocalUUID(uuid);
-                if (music) {
-                    musicList.push(music);
-                }
-            }
-            setTracks(musicList);
-        } else {
-            // 未修改playlist
-        }
-        // if musicList is still empty, then quit
-        if (musicList.length === 0) {
-            // enqueueSnackbar(`Playlist is empty, uuid: ${playlistUUID}`, { variant: "info" });
-            Notify.info(`Playlist is empty, uuid: ${playlistUUID}`);
-            return;
-        }
-        // find index
-        const index = musicList.findIndex(music => music.uuid === musicUUID);
-        if (index === -1) {
+        // let musicList: Music[] = tracks;
+        // if ("NO_PLAYLIST" === playlistUUID) {
+        //     // 无playlist
+        //     const onlyOne = await Music.fromUUID(musicUUID);
+        //     musicList = [onlyOne!];
+        //     setTracks(musicList);
+        // } else if (!playlistUUID) {
+        //     // 清空选择
+        //     musicList = await Playlist.loadLocal();
+        //     setTracks(musicList);
+        // } else if (
+        //     (playlistUUID !== localStorage.getItem('playlistUUID')) || // 修改了playlist
+        //     (musicList.length === 0) // 首次加载
+        // ) {
+        //     // 更新选择
+        //     const playlist = await Playlist.fromUUID(playlistUUID);
+        //     if (!playlist) {
+        //         // enqueueSnackbar(`404 Playlist not found, uuid: ${playlistUUID}`, { variant: "error" });
+        //         Notify.error(`404 Playlist not found, uuid: ${playlistUUID}`);
+        //         return;
+        //     }
+        //     musicList = [];
+        //     for (const uuid of playlist.contains) {
+        //         const music = await Music.fromUUID(uuid);
+        //         if (music) {
+        //             musicList.push(music);
+        //         }
+        //     }
+        //     setTracks(musicList);
+        // } else {
+        //     // 未修改playlist
+        // }
+        // // if musicList is still empty, then quit
+        // if (musicList.length === 0) {
+        //     // enqueueSnackbar(`Playlist is empty, uuid: ${playlistUUID}`, { variant: "info" });
+        //     Notify.info(`Playlist is empty, uuid: ${playlistUUID}`);
+        //     return;
+        // }
+        // // find index
+        // const index = musicList.findIndex(music => music.uuid === musicUUID);
+        // if (index === -1) {
+        //     setIndex(0);
+        // } else {
+        //     setIndex(index);
+        // }
+        const m = await Music.fromUUID(musicUUID);
+        if (m) {
+            setTracks([m]);
             setIndex(0);
-        } else {
-            setIndex(index);
+            // console.log("Player music", m);
+            // 修改html title，meta，icon
+            document.title = m.title;
+            const link = document.querySelector("link[rel~='icon']");
+            if (link) {
+                link.setAttribute('href', m.thumbUrl);
+            }
+            const meta = document.querySelector('meta[name="description"]');
+            if (meta) {
+                meta.setAttribute('content', m.title);
+            }
+
+            // console.log("Player music", musicList, index, music);
+            const src = await m.musicUrl();
+            // console.log("Player music src", src);
+            setSrcComputed(src);
         }
-        const music = musicList[index];
-        if (!music) {
-            // enqueueSnackbar(`404 Music not found, uuid: ${musicUUID}`, { variant: "error" });
+        else {
             Notify.error(`404 Music not found, uuid: ${musicUUID}`);
             return;
         }
-        // 修改html title，meta，icon
-        document.title = music.title;
-        const link = document.querySelector("link[rel~='icon']");
-        if (link) {
-            link.setAttribute('href', music.thumbUrl);
-        }
-        const meta = document.querySelector('meta[name="description"]');
-        if (meta) {
-            meta.setAttribute('content', music.title);
-        }
-
-        // console.log("Player music", musicList, index, music);
-        const src = await music.musicUrl();
-        setSrcComputed(src);
     }
-
 
     React.useEffect(() => {
         // loading for first render
-        const musicUUID = localStorage.getItem('musicUUID')!;
-        const playlistUUID = localStorage.getItem('playlistUUID')!;
-        fetchMusic(musicUUID, playlistUUID).then(() => {
-            // console.log("Player fetchMusic done", tracks);
-        });
+        const musicUUID = localStorage.getItem('musicUUID');
+        const playlistUUID = localStorage.getItem('playlistUUID');
+        if (musicUUID) {
+            fetchMusic(musicUUID, playlistUUID)
+        }
+
 
         Notify.init((data) => {
             const { message, variant } = data;

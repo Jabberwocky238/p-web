@@ -80,8 +80,8 @@ export default defineConfig({
 			],
 		} as CopyRspackPluginOptions),
 		new rspack.DefinePlugin({
-			"process.env.BACKEND_API": isDev ? JSON.stringify("http://127.0.0.1:23891") : JSON.stringify("https://jw238.site/api"),
-			// "process.env.SELF_API": isDev ? JSON.stringify("http://127.0.0.1:8080") : JSON.stringify("https://jw238.site/api"),
+			"process.env.BACKEND_API": isDev ? JSON.stringify("http://localhost:23891") : JSON.stringify("https://jw238.site/api"),
+			// "process.env.SELF_API": isDev ? JSON.stringify("http://localhost:8080") : JSON.stringify("https://jw238.site/api"),
 		} as DefinePluginOptions),
 	].filter(Boolean),
 	optimization: {
@@ -91,6 +91,9 @@ export default defineConfig({
 				minimizerOptions: { targets }
 			})
 		]
+	},
+	devServer: {
+		allowedHosts: "all",
 	},
 	experiments: {
 		css: true

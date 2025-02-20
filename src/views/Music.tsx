@@ -9,6 +9,22 @@ import Stack from "@mui/material/Stack";
 import EditIcon from '@mui/icons-material/Edit';
 import { Notify } from "@/core/notify";
 import { RemoteMusicAdapter } from "@/core/models/music/remote-adapter";
+import DeleteIcon from '@mui/icons-material/Delete';
+import { LocalMusicAdapter } from "@/core/models/music/local-adapter";
+
+const btnDelete = async (music: Music) => {
+    LocalMusicAdapter.deleteCache(music.uuid);
+    localStorage.removeItem("musicUUID");
+}
+
+const btnDownload = async (music: Music) => {
+    console.log("Downloading music...");
+    const musicBlob = await music.musicBlob();
+    console.log("Downloading cover...");
+    const coverBlob = await music.coverBlob();
+    console.log("Dumping to DB...");
+    await music.dumpToDB(musicBlob, coverBlob);
+}
 
 export default function MusicDetail() {
     const [ok, params] = useRoute("/music/:uuid");
@@ -76,6 +92,25 @@ export default function MusicDetail() {
                             onClick={handleClick}
                             color={"default"}
                         />
+                        {music && music.location.ty === 'Local' && <Chip
+                            icon={<DeleteIcon />}
+                            label={"Delete"}
+                            onClick={() => {
+                                btnDelete(music);
+                                navigate('/');
+                            }}
+                            color="error"
+                        />}
+                        {music && music.location.ty === 'Remote' && <Chip
+                            icon={<DeleteIcon />}
+                            label={"Download"}
+                            onClick={async () => {
+                                btnDownload(music);
+                                Notify.success("Download success");
+                                music.location.ty = 'Local';
+                            }}
+                            color="success"
+                        />}
                         <Chip
                             icon={<EditIcon />}
                             label="Edit"
@@ -94,10 +129,11 @@ export default function MusicDetail() {
 }
 
 async function retrieveMusicMetadata(uuid: string) {
-    const music = await Music.fromLocalUUID(uuid);
+    const music = await Music.fromUUID(uuid);
     if (!music) {
         throw new Error("Music not found");
     }
+    console.log(music);
     const coverUrl = await music.coverUrl();
     return { music, coverUrl } as {
         music: Music,

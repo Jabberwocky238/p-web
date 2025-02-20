@@ -89,7 +89,7 @@ class _IDBwarpper<T> {
     }
 
     async getAllData() {
-        return await this.db.getAll(this.objectStore);
+        return await this.db.getAll(this.objectStore) as T[];
     }
 }
 

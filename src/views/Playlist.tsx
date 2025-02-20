@@ -41,7 +41,7 @@ export default function BasicStack() {
                 }
                 let musicList: Music[] = [];
                 for (const uuid of list.contains) {
-                    const music = await Music.fromLocalUUID(uuid);
+                    const music = await Music.fromUUID(uuid);
                     if (music) {
                         musicList.push(music);
                     }

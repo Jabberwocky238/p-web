@@ -56,7 +56,10 @@ export async function downloadMusic(uuid: string) {
     return {
         ...data,
         version: "1.0.0",
-        location: "Remote",
+        location: {
+            ty: "Remote",
+            apiBaseUrl: API_BASE_URL,
+        },
     } as MusicParams;
 }
 
@@ -76,7 +79,10 @@ export async function allRemoteMusic() {
         return {
             ...item,
             version: "1.0.0",
-            location: "Remote",
+            location: {
+                ty: "Remote",
+                apiBaseUrl: API_BASE_URL,
+            }
         } as MusicParams;
     });
 }
@@ -89,20 +95,22 @@ async function musicCover(api: string, uuid: string) {
     const url = `${api}/music/cover?uuid=${uuid}`;
     const res = await fetch(url, {
         method: 'GET',
+        mode: "cors",
     });
     const blob = await res.blob();
     return blob as File;
 }
 
 async function musicBlobUrl(api: string, uuid: string) {
-    return `${api}/music/cover?uuid=${uuid}`
+    return `${api}/music/blob?uuid=${uuid}`
 }
 
 async function musicBlob(api: string, uuid: string) {
     const url = `${api}/music/blob?uuid=${uuid}`;
     const res = await fetch(url, {
         method: 'GET',
-    });
+        mode: "cors",
+    } as RequestInit);
     const blob = await res.blob();
     return blob as File;
 }

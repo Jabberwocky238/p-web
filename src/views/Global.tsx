@@ -39,7 +39,7 @@ export default function BasicStack() {
                 <Stack spacing={2}>
                     {musicList.map((music) => (
                         <Item key={music.uuid}>
-                            <PlaylistItem musicParams={music} playlistUUID={undefined} />
+                            <PlaylistItem musicParams={{ ...music }} playlistUUID={undefined} />
                         </Item>
                     ))}
                 </Stack>

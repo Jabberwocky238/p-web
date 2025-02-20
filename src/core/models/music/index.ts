@@ -3,7 +3,10 @@ import { LocalMusicAdapter } from "./local-adapter";
 import { allRemoteMusic, checkRemoteExist, downloadMusic, RemoteMusicAdapter, uploadMusic } from "./remote-adapter";
 import { blobToBase64, cropAndResizeImage } from "./utils";
 
-export type MusicLocation = "Local" | "Remote";
+export type MusicLocation = {
+    ty: "Local" | "Remote",
+    apiBaseUrl?: string
+}
 
 export interface MusicParams {
     uuid: string,
@@ -56,24 +59,27 @@ export class Music implements MusicActions, MusicParams {
         this.location = params.location;
     }
 
-    static async fromLocalUUID(uuid: string): Promise<Music | undefined> {
+    static async fromUUID(uuid: string): Promise<Music | undefined> {
         const db = await useDB();
         let metadata = await db.create<MusicParams>(MUSIC_METADATA).getData(uuid);
         if (!metadata) {
             return undefined;
         }
         // let { metadata_filled: metadata, missing } = await fillEmptyMusicParams(metadata);
-        const adapter = new LocalMusicAdapter(uuid);
-        const music = new Music(metadata, adapter);
-        // if (missing) {
-        //     await music.dumpToDB(await music.musicBlob(), await music.coverBlob());
-        // }
-        return music;
+        let adapter: MusicActions;
+        if (metadata.location.ty === 'Local') {
+            adapter = new LocalMusicAdapter(uuid);
+        } else if (metadata.location.ty === 'Remote') {
+            adapter = new RemoteMusicAdapter(uuid, metadata.location.apiBaseUrl ?? process.env.BACKEND_API);
+        } else {
+            throw new Error("Unknown location");
+        }
+        return new Music(metadata, adapter);
     }
 
     static async fromParams(params: MusicParams): Promise<Music> {
         // console.log(params);
-        switch (params.location) {
+        switch (params.location.ty) {
             case "Local": {
                 const adapter = new LocalMusicAdapter(params.uuid);
                 // let { metadata_filled: params, missing } = await fillEmptyMusicParams(params, adapter);
@@ -94,11 +100,27 @@ export class Music implements MusicActions, MusicParams {
 
     static async getAllLocalMusic(): Promise<Music[]> {
         const db = await useDB();
-        const datas = await db.create(MUSIC_METADATA).getAllData() as any[];
-        return datas.map(data => {
-            const adapter = new LocalMusicAdapter(data.uuid);
-            return new Music(data, adapter)
-        });
+        const datas = await db.create(MUSIC_METADATA).getAllData() as MusicParams[];
+
+        // 对所有data.location为字符串的进行二次清洗
+        datas.forEach(data => {
+            if (typeof data.location === 'string') {
+                data.location = {
+                    ty: data.location,
+                }
+                Music.fromParams(data).then(music => {
+                    music.register();
+                })
+            }
+        })
+
+        return datas.filter(data => {
+            return data.location.ty === 'Local'
+        })
+            .map(data => {
+                const adapter = new LocalMusicAdapter(data.uuid);
+                return new Music(data, adapter)
+            });
     }
 
     static async getAllRemoteMusic(): Promise<Music[]> {
@@ -109,23 +131,35 @@ export class Music implements MusicActions, MusicParams {
         });
     }
 
-    async dumpToDB(file: File, cover?: File | null) {
+    async register(ty: "Remote" | "Local" = "Local") {
         const db = await useDB();
-        // if this.params.thumbUrl is empty, then fill it with cover
-        let thumbUrl;
-        if (!this.params.thumbUrl) {
-            thumbUrl = cover ? await blobToBase64(await cropAndResizeImage(cover)) : "/default-album-pic.jfif";
-        } else {
-            thumbUrl = this.params.thumbUrl;
-        }
         await db.create(MUSIC_METADATA).putData(this.params.uuid, {
             title: this.params.title,
             artist: this.params.artist,
             album: this.params.album,
             version: this.params.version,
-            thumbUrl: thumbUrl,
-            location: 'Local',
-        });
+            thumbUrl: this.params.thumbUrl,
+            location: {
+                ty: this.params.location.ty ?? ty,
+            },
+            properties: {}
+        } satisfies Omit<MusicParams, 'uuid'>);
+    }
+
+    async dumpToDB(file: File, cover?: File | null) {
+        const db = await useDB();
+        // if this.params.thumbUrl is empty, then fill it with cover
+        await db.create(MUSIC_METADATA).putData(this.params.uuid, {
+            title: this.params.title,
+            artist: this.params.artist,
+            album: this.params.album,
+            version: this.params.version,
+            thumbUrl: this.params.thumbUrl,
+            location: {
+                ty: 'Local',
+            },
+            properties: {}
+        } satisfies Omit<MusicParams, 'uuid'>);
         await db.create(MUSIC_COVER).putData(this.params.uuid, {
             ty: cover ? "blob" : "string",
             cover: cover ? cover : "/default-album-pic.jfif",

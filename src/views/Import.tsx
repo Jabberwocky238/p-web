@@ -34,14 +34,17 @@ export default function Settings() {
         album: "",
         version: "1.0.0",
         thumbUrl: "",
-        location: "Local",
+        location: {
+            ty: "Local",
+        },
+        properties: {}
     });
 
     React.useEffect(() => {
         if (ok) {
             const uuid = params.uuid;
             async function fetchData() {
-                const music = await Music.fromLocalUUID(uuid);
+                const music = await Music.fromUUID(uuid);
                 if (music) {
                     console.log("has music", music);
 

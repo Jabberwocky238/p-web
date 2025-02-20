@@ -2,7 +2,7 @@ import mitt, { Emitter, EventType, Handler as _Handler } from "mitt";
 
 const AllEvents = {
     "toggleDrawer": (param: { state: boolean }) => { },
-    "switchMusic": (param: { musicUUID: string, playlistUUID: string | null }) => { },
+    "switchMusic": (param: { musicUUID: string, playlistUUID: "NO_PLAYLIST" | string | null }) => { },
 }
 
 type AllEventTy = typeof AllEvents;

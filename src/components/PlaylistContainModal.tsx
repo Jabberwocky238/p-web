@@ -34,7 +34,7 @@ function MyTransferList({ uuid, setContains }: TransferListProps) {
             }
             const contained: Music[] = [];
             for (const uuid of list.contains) {
-                const music = await Music.fromLocalUUID(uuid);
+                const music = await Music.fromUUID(uuid);
                 if (music) {
                     contained.push(music);
                 }

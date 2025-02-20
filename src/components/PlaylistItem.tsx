@@ -37,23 +37,30 @@ export default function MediaControlCard({ musicParams, playlistUUID }: Playlist
             // 如果点击的是当前正在播放的音乐，不做任何操作
         } else {
             // 如果拿的是远程的音乐，就先fetch再播放
-            if (musicParams.location === "Remote") {
+            if (musicParams.location.ty === "Remote") {
                 // 检查是否已经下载
-                const local = await Music.fromLocalUUID(musicParams.uuid);
+                const local = await Music.fromUUID(musicParams.uuid);
                 if (!local) {
                     console.log("fetching remote music", musicParams.uuid);
                     const music = await Music.fromParams(musicParams);
-                    const musicBlob = await music.musicBlob();
-                    const coverBlob = await music.coverBlob();
-                    await music.dumpToDB(musicBlob, coverBlob);
+                    // const musicBlob = await music.musicBlob();
+                    // const coverBlob = await music.coverBlob();
+                    await music.register('Remote')
                 } else {
                     console.log("already downloaded", musicParams.uuid);
                 }
+
+                BUS.emit('switchMusic', {
+                    musicUUID: musicParams.uuid,
+                    playlistUUID: "NO_PLAYLIST",
+                });
+            } else {
+                BUS.emit('switchMusic', {
+                    musicUUID: musicParams.uuid,
+                    playlistUUID: playlistUUID || null,
+                });
             }
-            BUS.emit('switchMusic', {
-                musicUUID: musicParams.uuid,
-                playlistUUID: playlistUUID || null
-            });
+
             // console.log("MediaControlCard switchMusic", musicParams.uuid, playlistUUID);
         }
         navigate(`/music/${musicParams.uuid}`);

@@ -1,4 +1,5 @@
 import { useDB } from "../indexedDB";
+import { Music, MUSIC_METADATA, MusicParams } from "./music";
 
 export interface PlaylistParams {
     readonly uuid: string,
@@ -35,6 +36,17 @@ export class Playlist {
             return undefined;
         }
         return _PlaylistBuilder(metadata);
+    }
+
+    static async loadLocal(): Promise<Music[]> {
+        const db = await useDB();
+        const metadata = await db.create<MusicParams>(MUSIC_METADATA).getAllData();
+        const musicList = [];
+        for (const data of metadata) {
+            const music = await Music.fromParams(data);
+            musicList.push(music);
+        }
+        return musicList;
     }
 
     static fromParams(params: PlaylistParams): Playlist {
