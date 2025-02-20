@@ -1,6 +1,7 @@
 import { useDB } from "../../indexedDB";
 import { LocalMusicAdapter } from "./local-adapter";
-import { allRemoteMusic, downloadMusic, RemoteMusicAdapter } from "./remote-adapter";
+import { allRemoteMusic, checkRemoteExist, downloadMusic, RemoteMusicAdapter, uploadMusic } from "./remote-adapter";
+import { blobToBase64, cropAndResizeImage } from "./utils";
 
 export type MusicLocation = "Local" | "Remote";
 

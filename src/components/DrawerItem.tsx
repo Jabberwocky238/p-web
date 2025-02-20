@@ -12,7 +12,16 @@ interface Props {
 export default function DrawerItem(data: Props) {
     const { key, icon, children, onClick } = data;
     return (
-        <ListItem key={key} disablePadding onClick={onClick}>
+        <ListItem key={key} disablePadding onClick={onClick}
+            sx={{
+                '&:hover': {
+                    backgroundColor: '#444749',
+                },
+                width: 'unset',
+                margin: '8px',
+                borderRadius: '8px',
+            }}
+        >
             <ListItemButton>
                 <ListItemIcon>
                     {icon}

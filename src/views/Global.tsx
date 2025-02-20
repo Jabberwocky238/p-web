@@ -6,6 +6,7 @@ import { styled } from '@mui/material/styles';
 import { Music } from '@/core/models/music';
 import React from 'react';
 import PlaylistItem from '@@/PlaylistItem';
+import { Notify } from '@/core/notify';
 
 const Item = styled(Paper)(({ theme }) => ({
     backgroundColor: '#fff',
@@ -23,8 +24,12 @@ export default function BasicStack() {
 
     React.useEffect(() => {
         (async () => {
-            const data = await Music.getAllRemoteMusic()
-            setMusicList(data);
+            try {
+                const data = await Music.getAllRemoteMusic()
+                setMusicList(data);
+            } catch (e) {
+                Notify.error("Failed to fetch remote music list");
+            }
         })();
     }, []);
 

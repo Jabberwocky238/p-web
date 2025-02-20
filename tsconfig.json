@@ -4,7 +4,6 @@
     "lib": [
       "DOM",
       "ES2020",
-      "webworker"
     ],
     "esModuleInterop": true,
     "module": "ESNext",

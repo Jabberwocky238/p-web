@@ -29,7 +29,7 @@ function Warp({ children }: { children: React.ReactNode }) {
 
 export default function App() {
 	const [open, setOpen] = useState(false);
-	const { enqueueSnackbar } = useSnackbar();
+	// const { enqueueSnackbar } = useSnackbar();
 
 	useEffect(() => {
 		(async () => {
@@ -39,10 +39,10 @@ export default function App() {
 			setOpen(payload.state);
 		}
 		BUS.on("toggleDrawer", toggle);
-		Notify.init((data) => {
-			const { message, variant } = data;
-			enqueueSnackbar(message, { variant });
-		})
+
+		// console.log("init Notify");
+		// enqueueSnackbar("init Notify", { variant: "info" });
+
 		return () => {
 			BUS.off("toggleDrawer", toggle);
 		}

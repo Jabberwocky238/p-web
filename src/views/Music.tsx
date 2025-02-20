@@ -7,7 +7,6 @@ import Chip from "@mui/material/Chip";
 import FaceIcon from '@mui/icons-material/Face';
 import Stack from "@mui/material/Stack";
 import EditIcon from '@mui/icons-material/Edit';
-import { useSnackbar } from "notistack";
 import { Notify } from "@/core/notify";
 
 export default function MusicDetail() {

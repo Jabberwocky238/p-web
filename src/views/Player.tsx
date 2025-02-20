@@ -110,6 +110,12 @@ export default function () {
             // console.log("Player fetchMusic done", tracks);
         });
 
+        Notify.init((data) => {
+            const { message, variant } = data;
+            enqueueSnackbar(message, { variant });
+        })
+        Notify.success("Notify init");
+
         const _switchMusicHandler: Handler<'switchMusic'> = ({ musicUUID, playlistUUID }) => {
             localStorage.setItem('musicUUID', musicUUID);
             if (!playlistUUID) {
