@@ -2,11 +2,12 @@ import * as React from 'react';
 import { getMusicBlobUrl, getPlaylist } from '../core/api';
 import AudioPlayer from 'react-h5-audio-player';
 import 'react-h5-audio-player/lib/styles.css';
-import { bus, Handler } from '../core/bus';
+import { BUS, Handler } from '../core/bus';
 import { Music, MusicParams } from '../core/models/music';
 import { Playlist } from '../core/models/playlist';
 import { useLocation } from 'wouter';
 import { useSnackbar } from 'notistack';
+import { Notify } from '@/core/notify';
 
 export default function () {
     const [tracks, setTracks] = React.useState<Music[]>([]);
@@ -29,7 +30,7 @@ export default function () {
         setIndex(newIndex);
         const music = tracks[newIndex];
         // console.log("switchMusic tracks", tracks);
-        bus.emit('switchMusic', {
+        BUS.emit('switchMusic', {
             musicUUID: music.uuid,
             playlistUUID: localStorage.getItem('playlistUUID'),
         });
@@ -50,7 +51,8 @@ export default function () {
             // 更新选择
             const playlist = await Playlist.fromUUID(playlistUUID);
             if (!playlist) {
-                enqueueSnackbar(`404 Playlist not found, uuid: ${playlistUUID}`, { variant: "error" });
+                // enqueueSnackbar(`404 Playlist not found, uuid: ${playlistUUID}`, { variant: "error" });
+                Notify.error(`404 Playlist not found, uuid: ${playlistUUID}`);
                 return;
             }
             musicList = [];
@@ -66,7 +68,8 @@ export default function () {
         }
         // if musicList is still empty, then quit
         if (musicList.length === 0) {
-            enqueueSnackbar(`Playlist is empty, uuid: ${playlistUUID}`, { variant: "info" });
+            // enqueueSnackbar(`Playlist is empty, uuid: ${playlistUUID}`, { variant: "info" });
+            Notify.info(`Playlist is empty, uuid: ${playlistUUID}`);
             return;
         }
         // find index
@@ -78,7 +81,8 @@ export default function () {
         }
         const music = musicList[index];
         if (!music) {
-            enqueueSnackbar(`404 Music not found, uuid: ${musicUUID}`, { variant: "error" });
+            // enqueueSnackbar(`404 Music not found, uuid: ${musicUUID}`, { variant: "error" });
+            Notify.error(`404 Music not found, uuid: ${musicUUID}`);
             return;
         }
         // 修改html title，meta，icon
@@ -118,10 +122,10 @@ export default function () {
             fetchMusic(musicUUID, playlistUUID);
         }
 
-        bus.on('switchMusic', _switchMusicHandler)
+        BUS.on('switchMusic', _switchMusicHandler)
         return () => {
             // console.log("Player unmount");
-            bus.off('switchMusic', _switchMusicHandler);
+            BUS.off('switchMusic', _switchMusicHandler);
         }
     }, []);
 

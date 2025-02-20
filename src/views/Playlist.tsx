@@ -6,12 +6,13 @@ import { styled } from '@mui/material/styles';
 import { Music } from '@/core/models/music';
 import { useDB } from '@/core/indexedDB';
 import React from 'react';
-import MediaControlCard from '@@/PlaylistItem';
+import PlaylistItem from '@@/PlaylistItem';
 import { useRoute } from 'wouter';
 import Button from '@mui/material/Button';
 import PlaylistContainModal from '@@/PlaylistContainModal';
 import { useSnackbar } from 'notistack';
 import { Playlist } from '@/core/models/playlist';
+import { Notify } from '@/core/notify';
 
 const Item = styled(Paper)(({ theme }) => ({
     backgroundColor: '#fff',
@@ -28,7 +29,6 @@ export default function BasicStack() {
     const [ok, params] = useRoute("/playlist/:uuid");
     const [musicList, setMusicList] = React.useState<Music[]>([]);
     const [showModal, setShowModal] = React.useState(false);
-    const { enqueueSnackbar } = useSnackbar();
 
     React.useEffect(() => {
         (async () => {
@@ -36,7 +36,7 @@ export default function BasicStack() {
                 const uuid = params.uuid;
                 const list = await Playlist.fromUUID(uuid);
                 if (!list) {
-                    enqueueSnackbar("Playlist not found", { variant: "error" });
+                    Notify.error("Playlist not found");
                     return;
                 }
                 let musicList: Music[] = [];
@@ -61,7 +61,7 @@ export default function BasicStack() {
                 <Stack spacing={2}>
                     {musicList.map((music) => (
                         <Item key={music.uuid}>
-                            <MediaControlCard musicParams={music} playlistUUID={ok ? params.uuid : undefined} />
+                            <PlaylistItem musicParams={music} playlistUUID={ok ? params.uuid : undefined} />
                         </Item>
                     ))}
                 </Stack>

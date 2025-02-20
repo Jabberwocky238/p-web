@@ -4,14 +4,8 @@ import Paper from '@mui/material/Paper';
 import Stack from '@mui/material/Stack';
 import { styled } from '@mui/material/styles';
 import { Music } from '@/core/models/music';
-import { useDB } from '@/core/indexedDB';
 import React from 'react';
-import MediaControlCard from '@@/PlaylistItem';
-import { useRoute } from 'wouter';
-import Button from '@mui/material/Button';
-import PlaylistContainModal from '@@/PlaylistContainModal';
-import { useSnackbar } from 'notistack';
-import { Playlist } from '@/core/models/playlist';
+import PlaylistItem from '@@/PlaylistItem';
 
 const Item = styled(Paper)(({ theme }) => ({
     backgroundColor: '#fff',
@@ -40,7 +34,7 @@ export default function BasicStack() {
                 <Stack spacing={2}>
                     {musicList.map((music) => (
                         <Item key={music.uuid}>
-                            <MediaControlCard musicParams={music} playlistUUID={undefined} />
+                            <PlaylistItem musicParams={music} playlistUUID={undefined} />
                         </Item>
                     ))}
                 </Stack>

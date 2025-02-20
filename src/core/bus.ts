@@ -57,4 +57,4 @@ class BusManager {
     }
 }
 
-export const bus = new BusManager();
+export const BUS = new BusManager();

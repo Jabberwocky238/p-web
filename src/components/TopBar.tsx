@@ -70,7 +70,7 @@ import ContentCopy from '@mui/icons-material/ContentCopy';
 import ContentPaste from '@mui/icons-material/ContentPaste';
 import Cloud from '@mui/icons-material/Cloud';
 import { Link } from 'wouter';
-import { bus } from '@/core/bus';
+import { BUS } from '@/core/bus';
 
 
 export default function ButtonAppBar() {
@@ -84,7 +84,7 @@ export default function ButtonAppBar() {
                     aria-label="menu"
                     sx={{ mr: 2 }}
                     onClick={() => {
-                        bus.emit("toggleDrawer", { state: true });
+                        BUS.emit("toggleDrawer", { state: true });
                     }}
                 >
                     <MenuIcon />

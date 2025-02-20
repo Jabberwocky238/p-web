@@ -8,7 +8,7 @@ import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import { Music, MusicParams } from '../core/models/music';
-import { bus } from '../core/bus';
+import { BUS } from '../core/bus';
 import SquareImage from './SquareImage';
 import { useEffect, useState } from 'react';
 import { Link, useLocation } from 'wouter';
@@ -50,7 +50,7 @@ export default function MediaControlCard({ musicParams, playlistUUID }: Playlist
                     console.log("already downloaded", musicParams.uuid);
                 }
             }
-            bus.emit('switchMusic', {
+            BUS.emit('switchMusic', {
                 musicUUID: musicParams.uuid,
                 playlistUUID: playlistUUID || null
             });
@@ -61,7 +61,7 @@ export default function MediaControlCard({ musicParams, playlistUUID }: Playlist
 
     return (
         <Card sx={{ display: 'flex', flexDirection: 'row' }} onClick={jump}>
-            <SquareImage src={thumb} width={"20%"} />
+            <SquareImage src={thumb} forceSquare width={"20%"} />
             <CardContent sx={{ flex: '1 0 auto', flexGrow: 1, textWrap: 'wrap', padding: 'unset' }}>
                 <strong>{musicParams.title}</strong>
                 <div>{musicParams.artist}</div>

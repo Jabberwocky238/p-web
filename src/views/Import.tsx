@@ -7,6 +7,7 @@ import { Music, MusicParams } from "../core/models/music";
 import { useLocation, useRoute } from "wouter";
 import { useSnackbar } from 'notistack';
 import { generateUUIDv4 } from "../core/utils";
+import { Notify } from "@/core/notify";
 
 const VisuallyHiddenInput = styled('input')({
     clip: 'rect(0 0 0 0)',
@@ -23,7 +24,6 @@ const VisuallyHiddenInput = styled('input')({
 export default function Settings() {
     const [ok, params] = useRoute("/import/:uuid");
     const [location, navigate] = useLocation();
-    const { enqueueSnackbar } = useSnackbar();
 
     const [audioFile, setAudioFile] = React.useState<File | null>(null);
     const [imageFile, setImageFile] = React.useState<File | null>(null);
@@ -71,7 +71,7 @@ export default function Settings() {
         }
         const music = await Music.fromParams(musicObj);
         await music.dumpToDB(audioFile!, imageFile);
-        enqueueSnackbar('Success', { variant: 'success' });
+        Notify.success("Success");
         navigate('/playlist/');
     }
 

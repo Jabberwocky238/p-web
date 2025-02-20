@@ -3,7 +3,8 @@
     "target": "es2022",
     "lib": [
       "DOM",
-      "ES2020"
+      "ES2020",
+      "webworker"
     ],
     "esModuleInterop": true,
     "module": "ESNext",

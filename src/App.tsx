@@ -1,15 +1,15 @@
 import { useEffect, useState } from "react";
 import { Redirect, Route, Router, Switch } from "wouter";
-import ButtonAppBar from "./views/TopBar";
+import ButtonAppBar from "./components/TopBar";
 import { Container, Drawer } from "@mui/material";
 import DrawerList from "@/views/Drawer";
 import { useHashLocation } from "wouter/use-hash-location";
 import { ThemeProvider, createTheme } from '@mui/material';
 import Player from "@/views/Player";
 import { useDB } from "./core/indexedDB";
-import { bus, Handler } from "./core/bus";
+import { BUS, Handler } from "./core/bus";
 
-import { SnackbarProvider } from 'notistack';
+import { SnackbarProvider, useSnackbar } from 'notistack';
 
 const theme = createTheme({
 	colorSchemes: {
@@ -27,9 +27,9 @@ function Warp({ children }: { children: React.ReactNode }) {
 	);
 }
 
-
 export default function App() {
 	const [open, setOpen] = useState(false);
+	const { enqueueSnackbar } = useSnackbar();
 
 	useEffect(() => {
 		(async () => {
@@ -38,9 +38,13 @@ export default function App() {
 		const toggle: Handler<'toggleDrawer'> = (payload) => {
 			setOpen(payload.state);
 		}
-		bus.on("toggleDrawer", toggle);
+		BUS.on("toggleDrawer", toggle);
+		Notify.init((data) => {
+			const { message, variant } = data;
+			enqueueSnackbar(message, { variant });
+		})
 		return () => {
-			bus.off("toggleDrawer", toggle);
+			BUS.off("toggleDrawer", toggle);
 		}
 	}, []);
 
@@ -76,6 +80,7 @@ import Playlist from "@/views/Playlist";
 import MusicDetail from "@/views/Music";
 import Settings from "@/views/Settings";
 import Global from "./views/Global";
+import { Notify } from "./core/notify";
 
 const SETTINGS = [
 	{

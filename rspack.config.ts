@@ -19,7 +19,7 @@ export default defineConfig({
 			configFile: path.resolve(__dirname, "./tsconfig.json"),
 			references: "auto",
 		},
-		extensions: ["...", ".ts", ".tsx", ".jsx", '.json'],
+		extensions: ["...", ".ts", ".js", ".tsx", ".jsx", '.json'],
 		alias: {
 			"@": path.resolve(__dirname, "src"),
 			"@@": path.resolve(__dirname, "src/components"),
@@ -31,6 +31,15 @@ export default defineConfig({
 				test: /\.svg$/,
 				type: "asset"
 			},
+			// {
+			// 	test: /\.worker\.ts$/,
+			// 	use: {
+			// 		loader: 'worker-loader',
+			// 		options: {
+			// 			filename: '[name].js',
+			// 		},
+			// 	},
+			// },
 			{
 				test: /\.(jsx?|tsx?)$/,
 				use: [
