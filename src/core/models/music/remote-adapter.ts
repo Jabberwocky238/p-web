@@ -3,31 +3,27 @@ import { Music, MusicActions, MusicParams } from ".";
 export class RemoteMusicAdapter implements MusicActions {
     constructor(
         public uuid: string,
-        // private apiBaseUrl: string
+        public apiBaseUrl: string
     ) { }
 
     async coverUrl() {
         // request to backend
-        const data = await musicCover(this.uuid);
-        return URL.createObjectURL(data);
+        return await musicCoverUrl(this.apiBaseUrl, this.uuid);
     }
 
     async coverBlob() {
         // request to backend
-        const data = await musicCover(this.uuid);
-        return data;
+        return await musicCover(this.apiBaseUrl, this.uuid);
     }
 
     async musicUrl() {
         // request to backend
-        const data = await musicBlob(this.uuid);
-        return URL.createObjectURL(data);
+        return await musicBlobUrl(this.apiBaseUrl, this.uuid);
     }
 
     async musicBlob() {
         // request to backend
-        const data = await musicBlob(this.uuid);
-        return data;
+        return await musicBlob(this.apiBaseUrl, this.uuid);
     }
 }
 
@@ -72,8 +68,12 @@ export async function allRemoteMusic() {
     });
 }
 
-async function musicCover(uuid: string) {
-    const url = `${API_BASE_URL}/music/cover?uuid=${uuid}`;
+async function musicCoverUrl(api: string, uuid: string) {
+    return `${api}/music/cover?uuid=${uuid}`
+}
+
+async function musicCover(api: string, uuid: string) {
+    const url = `${api}/music/cover?uuid=${uuid}`;
     const res = await fetch(url, {
         method: 'GET',
     });
@@ -81,8 +81,12 @@ async function musicCover(uuid: string) {
     return blob as File;
 }
 
-async function musicBlob(uuid: string) {
-    const url = `${API_BASE_URL}/music/blob?uuid=${uuid}`;
+async function musicBlobUrl(api: string, uuid: string) {
+    return `${api}/music/cover?uuid=${uuid}`
+}
+
+async function musicBlob(api: string, uuid: string) {
+    const url = `${api}/music/blob?uuid=${uuid}`;
     const res = await fetch(url, {
         method: 'GET',
     });
