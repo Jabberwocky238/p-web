@@ -87,7 +87,7 @@ export default function () {
             //     document.getElementById(uuid)?.remove();
             // }, 1000);
         })
-        Notify.success("Notify init");
+        // Notify.success("Notify init");
 
         const _switchMusicHandler: Handler<'switchMusic'> = ({ musicUUID, playlistUUID }) => {
             localStorage.setItem('musicUUID', musicUUID);

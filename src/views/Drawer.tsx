@@ -27,7 +27,7 @@ export const SETTINGS = [
     },
     {
         name: "Global",
-        link: "/global",
+        link: "/global/",
     },
     {
         name: "Settings",
@@ -80,7 +80,7 @@ export default function DrawerList() {
                             closeDrawer();
                             navigate(`/playlist/${obj.uuid}`);
                         }} >
-                            <ListItemText primary={obj.name} />
+                            <ListItemText primary={obj.title} />
                         </DrawerItem>
                     ))}
                 </List>

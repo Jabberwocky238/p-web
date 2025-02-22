@@ -43,6 +43,14 @@ const btnUpload = async (music: Music) => {
     }
 }
 
+const btnExport = async (music: Music) => {
+    const blob = await music.adapter().musicBlob();
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = music.title;
+    a.click();
+}
 
 export default function MusicDetail() {
     const [ok, params] = useRoute("/music/:uuid");
@@ -106,6 +114,14 @@ export default function MusicDetail() {
                                 setIsLocal(false);
                             }}
                             color="error"
+                        />}
+                        {isLocal && <Chip
+                            icon={<FaceIcon />}
+                            label={"Export"}
+                            onClick={() => {
+                                btnExport(music);
+                            }}
+                            color="primary"
                         />}
                         {!isLocal && <Chip
                             icon={<DeleteIcon />}

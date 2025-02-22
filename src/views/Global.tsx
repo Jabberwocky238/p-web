@@ -8,7 +8,9 @@ import React from 'react';
 import PlaylistItem from '@@/PlaylistItem';
 import { Notify } from '@/core/notify';
 import { BUS } from '@/core/bus';
-import { useLocation } from 'wouter';
+import { useLocation, useRoute } from 'wouter';
+import { Remote } from '@/core/models/remote';
+import { Button } from '@mui/material';
 
 const Item = styled(Paper)(({ theme }) => ({
     backgroundColor: '#fff',
@@ -21,14 +23,19 @@ const Item = styled(Paper)(({ theme }) => ({
     }),
 }));
 
-export default function BasicStack() {
+function RemotePlaylists({ uuid }: { uuid: string }) {
     const [musicList, setMusicList] = React.useState<Music[]>([]);
     const [location, navigate] = useLocation();
 
     React.useEffect(() => {
         (async () => {
             try {
-                const data = await Music.getAllRemoteMusic()
+                const remote = await Remote.fromUUID(uuid);
+                if (!remote) {
+                    Notify.error("Remote not found");
+                    return;
+                }
+                const data = await Music.getAllRemoteMusic(remote.remoteUrl)
                 setMusicList(data);
             } catch (e) {
                 Notify.error("Failed to fetch remote music list");
@@ -71,16 +78,49 @@ export default function BasicStack() {
     }
 
     return (
-        <>
-            <Box sx={{ width: '100%' }}>
+        <Stack spacing={2}>
+            {musicList.map((music) => (
+                <Item key={music.uuid}>
+                    <PlaylistItem musicParams={{ ...music }} onClick={() => jump(music)} />
+                </Item>
+            ))}
+        </Stack>
+    );
+}
+
+export default function BasicStack() {
+    const [ok, params] = useRoute("/global/:uuid");
+    const [remotes, setRemotes] = React.useState<Remote[]>([]);
+    const [location, navigate] = useLocation();
+
+    React.useEffect(() => {
+        (async () => {
+            try {
+                const data = await Remote.getAll();
+                setRemotes(data);
+            } catch (e) {
+                Notify.error("Failed to fetch remote music list");
+            }
+        })();
+    }, []);
+
+    return (
+        <Box sx={{ width: '100%' }}>
+            {ok ?
+                <RemotePlaylists uuid={params.uuid} />
+                :
                 <Stack spacing={2}>
-                    {musicList.map((music) => (
-                        <Item key={music.uuid}>
-                            <PlaylistItem musicParams={{ ...music }} onClick={() => jump(music)} />
-                        </Item>
+                    {remotes.map((remote) => (
+                        <Button
+                            key={remote.uuid}
+                            variant="contained"
+                            onClick={() => {
+                                navigate(`/global/${remote.uuid}`)
+                            }}>{remote.name}
+                        </Button>
                     ))}
                 </Stack>
-            </Box>
-        </>
+            }
+        </Box>
     );
 }

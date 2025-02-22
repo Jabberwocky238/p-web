@@ -2,6 +2,7 @@ import { IDBPDatabase, IDBPTransaction, openDB } from 'idb';
 
 import { objectStores as music_objectStores } from './models/music';
 import { objectStores as playlist_objectStores } from './models/playlist';
+import { objectStores as remote_objectStores } from './models/remote';
 
 var instance: IDBwarpper;
 
@@ -14,6 +15,11 @@ const upgradeTasks = [
             db.createObjectStore(store, { keyPath: 'uuid' });
         }
     },
+    (db: IDBPDatabase) => {
+        for (const store of remote_objectStores) {
+            db.createObjectStore(store, { keyPath: 'uuid' });
+        }
+    }
 ];
 
 export function criticalRemoveEverything() {
@@ -25,7 +31,7 @@ export async function useDB() {
         // console.log('instance', instance);
         return instance;
     }
-    const db = await openDB('myDatabase', 1, {
+    const db = await openDB('myDatabase', 2, {
         upgrade(db, oldVersion, newVersion, transaction) {
             console.log('upgrade', oldVersion, newVersion);
             if (!newVersion) {

@@ -52,8 +52,8 @@ export async function downloadMusic(uuid: string) {
     } as MusicProperties;
 }
 
-export async function allRemoteMusic() {
-    const url = `${API_BASE_URL}/music/all`;
+export async function allRemoteMusic(api: string) {
+    const url = `${api}/music/all`;
     const res = await fetch(url, {
         method: 'GET',
     });
@@ -82,7 +82,7 @@ export async function allRemoteMusic() {
             ...item,
             status: {
                 local: false,
-                remote: [API_BASE_URL],
+                remote: [api],
             }
         } as MusicProperties;
     });

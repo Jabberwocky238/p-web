@@ -95,7 +95,7 @@ const SETTINGS = [
 	},
 	{
 		name: "Global",
-		link: "/global",
+		link: "/global/*",
 		component: <Global />,
 	},
 	{

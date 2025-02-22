@@ -78,8 +78,8 @@ export class Music implements MusicProperties {
             })
     }
 
-    static async getAllRemoteMusic(): Promise<Music[]> {
-        const datas = await allRemoteMusic()
+    static async getAllRemoteMusic(api: string): Promise<Music[]> {
+        const datas = await allRemoteMusic(api)
         console.log(datas);
         return datas.map(data => {
             return Music.fromParams(data);
