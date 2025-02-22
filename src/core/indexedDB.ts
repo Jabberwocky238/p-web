@@ -16,6 +16,10 @@ const upgradeTasks = [
     },
 ];
 
+export function criticalRemoveEverything() {
+    indexedDB.deleteDatabase('myDatabase');
+}
+
 export async function useDB() {
     if (instance) {
         // console.log('instance', instance);

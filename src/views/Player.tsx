@@ -7,6 +7,9 @@ import { Playlist } from '../core/models/playlist';
 import { useLocation } from 'wouter';
 import { useSnackbar } from 'notistack';
 import { Notify } from '@/core/notify';
+import Alert from '@mui/material/Alert';
+import ReactDOM from 'react-dom';
+import { generateUUIDv4 } from '@/core/utils';
 
 export default function () {
     const [tracks, setTracks] = React.useState<Music[]>([]);
@@ -75,6 +78,14 @@ export default function () {
         Notify.init((data) => {
             const { message, variant } = data;
             enqueueSnackbar(message, { variant });
+            // const uuid = generateUUIDv4();
+            // ReactDOM.createPortal(
+            //     <Alert id={uuid} severity="info">This is an info Alert.</Alert>,
+            //     document.body
+            // )
+            // setTimeout(() => {
+            //     document.getElementById(uuid)?.remove();
+            // }, 1000);
         })
         Notify.success("Notify init");
 

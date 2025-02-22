@@ -32,8 +32,8 @@ export class CacheControl {
     }
 
     async upload(api: string) {
-        const { uuid, exist } = await checkRemoteExist(api, this.music.uuid);
-        const data = await uploadMusic(api, this.music, exist ? true : false);
+        const { status: exist } = await checkRemoteExist(api, this.music.uuid);
+        const data = await uploadMusic(api, this.music, exist);
         if (!exist) {
             this.music.status.remote.push(api);
             await this.music.dumpToDB();

@@ -1,19 +1,11 @@
-export default function Settings() {
-    return (
-        <div>
-            <h1>Settings</h1>
-            <FolderList />
-        </div>
-    );
-}
-
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
 import ListItemAvatar from '@mui/material/ListItemAvatar';
 import Avatar from '@mui/material/Avatar';
 import ImageIcon from '@mui/icons-material/Image';
 import WorkIcon from '@mui/icons-material/Work';
-import { Box, Button, TextField } from '@mui/material';
+import { Box, Button, Stack, TextField } from '@mui/material';
+import { criticalRemoveEverything } from '@/core/indexedDB';
 
 const AbleBtn = () => {
     return <Avatar><ImageIcon /></Avatar>;
@@ -27,9 +19,9 @@ const DeleteBtn = () => {
     return <Avatar><WorkIcon /></Avatar>;
 }
 
-function FolderList() {
+export default function Settings() {
     return (
-        <Box sx={{ width: '100%' }}>
+        <Stack spacing={2} direction="column">
             <List sx={{ bgcolor: 'background.paper' }}>
                 {/* <Button variant="contained" endIcon={<AddCircleOutline />}>Three</Button> */}
                 <ListItem>
@@ -43,7 +35,7 @@ function FolderList() {
                         required
                         id="outlined-required"
                         label="Required"
-                        value={'localhost:3000'}
+                        value={process.env.BACKEND_API!}
                         onChange={() => { }}
                     />
                     {/* <ListItemAvatar>
@@ -67,6 +59,11 @@ function FolderList() {
                 <ListItemText primary="Vacation" secondary="July 20, 2014" />
             </ListItem> */}
             </List>
-        </Box>
+            <Button variant="contained" color='error' endIcon={<ImageIcon />}
+                onClick={() => {
+                    criticalRemoveEverything();
+                }}
+            >清理所有缓存内容</Button>
+        </Stack>
     );
 }

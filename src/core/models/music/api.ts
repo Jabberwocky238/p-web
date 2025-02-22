@@ -38,8 +38,7 @@ export async function checkRemoteExist(api: string, uuid: string) {
         method: 'GET',
     });
     const data: {
-        uuid: string,
-        exist: boolean,
+        status: boolean,
     } = await res.json();
     return data
 }

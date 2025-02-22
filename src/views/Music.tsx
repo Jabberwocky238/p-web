@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useState } from "react";
-import { importMusicTransaction, Music } from "../core/models/music";
+import { useEffect, useState } from "react";
+import { Music } from "../core/models/music";
 import { BUS, Handler } from "../core/bus";
 import { useLocation, useRoute } from "wouter";
 import SquareImage from "../components/SquareImage";
@@ -9,11 +9,8 @@ import Stack from "@mui/material/Stack";
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { Notify } from "@/core/notify";
-import { RemoteMusicAdapter } from "@/core/models/music/remote-adapter";
-import Typography from "@mui/material/Typography";
 import PropertyBoard from "@/components/PropertyBoard";
 import Box from "@mui/material/Box";
-import { LocalMusicAdapter } from "@/core/models/music/local-adapter";
 import { CacheControl } from "@/core/models/music/cache";
 
 const API = process.env.BACKEND_API!;
@@ -31,16 +28,10 @@ const btnDownload = async (music: Music) => {
 }
 
 const btnUpload = async (music: Music) => {
-    // console.log("You clicked the Chip.");
-    // enqueueSnackbar("Uploading music...Plz Wait", { variant: "info" });
     if (!music) {
         Notify.error("Music not found");
         return;
     }
-    // if (music.status.remote.length > 0) {
-    //     Notify.info("music is already uploaded to" + music.status.remote[0]);
-    //     return;
-    // }
     Notify.info("Uploading music...Plz Wait");
     try {
         const cache = new CacheControl(music);
@@ -50,7 +41,6 @@ const btnUpload = async (music: Music) => {
         console.error(error);
         Notify.error("Upload failed");
     }
-    // console.log(data);
 }
 
 
@@ -70,8 +60,11 @@ export default function MusicDetail() {
             // console.log(params.uuid);
             const { music, coverUrl } = await retrieveMusicMetadata(params.uuid);
             setMusic(music);
-            setCoverUrl(coverUrl);
+            setCoverUrl(music.thumbnail);
             setIsLocal(music.status.local);
+            setTimeout(() => {
+                setCoverUrl(coverUrl);
+            }, 2000);
         })();
     }, [params && params.uuid]);
 
@@ -97,14 +90,14 @@ export default function MusicDetail() {
                     <strong>{music.title}</strong>
 
                     <Stack direction="row" spacing={1}>
-                        <Chip
+                        {isLocal && <Chip
                             icon={<FaceIcon />}
                             label={"Upload / Update"}
                             onClick={() => {
                                 btnUpload(music);
                             }}
                             color={"default"}
-                        />
+                        />}
                         {isLocal && <Chip
                             icon={<DeleteIcon />}
                             label={"Delete"}
