@@ -1,12 +1,12 @@
 import { useDB } from "@/core/indexedDB";
-import { MUSIC_BLOB, MUSIC_COVER, MUSIC_METADATA, MusicActions } from ".";
+import { Music, MUSIC_BLOB, MUSIC_COVER, MUSIC_METADATA, MusicActions, MusicProperties } from ".";
 
 export class LocalMusicAdapter implements MusicActions {
     constructor(public uuid: string) { }
 
     async coverUrl() {
         const db = await useDB();
-        const blob = await db.create(MUSIC_COVER).getData(this.uuid) as {
+        const blob = await db.create(MUSIC_COVER).get(this.uuid) as {
             ty: string,
             cover: File | string,
         };
@@ -21,7 +21,7 @@ export class LocalMusicAdapter implements MusicActions {
 
     async coverBlob() {
         const db = await useDB();
-        const blob = await db.create(MUSIC_COVER).getData(this.uuid) as {
+        const blob = await db.create(MUSIC_COVER).get(this.uuid) as {
             ty: string,
             cover: File | string,
         };
@@ -38,7 +38,7 @@ export class LocalMusicAdapter implements MusicActions {
 
     async musicUrl() {
         const db = await useDB();
-        const data = await db.create(MUSIC_BLOB).getData(this.uuid) as {
+        const data = await db.create(MUSIC_BLOB).get(this.uuid) as {
             blob: Blob,
         };
         return URL.createObjectURL(data.blob);
@@ -46,7 +46,7 @@ export class LocalMusicAdapter implements MusicActions {
 
     async musicBlob() {
         const db = await useDB();
-        const data = await db.create(MUSIC_BLOB).getData(this.uuid) as {
+        const data = await db.create(MUSIC_BLOB).get(this.uuid) as {
             blob: File,
         };
         return data.blob;
@@ -55,9 +55,16 @@ export class LocalMusicAdapter implements MusicActions {
 
     static async deleteCache(uuid: string) {
         const db = await useDB();
-        await db.create(MUSIC_METADATA).deleteData(uuid);
-        await db.create(MUSIC_BLOB).deleteData(uuid);
-        await db.create(MUSIC_COVER).deleteData(uuid);
+        const music = await db.create(MUSIC_METADATA).get(uuid) as MusicProperties;
+        if (!music) {
+            return;
+        }
+        const music_ = Music.fromParams(music);
+        music_.status.local = false;
+        await music_.dumpToDB();
+
+        await db.create(MUSIC_BLOB).delete(uuid);
+        await db.create(MUSIC_COVER).delete(uuid);
     }
 }
 

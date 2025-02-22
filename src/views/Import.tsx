@@ -3,11 +3,11 @@ import * as React from 'react';
 import { styled } from '@mui/material/styles';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import { Box, Stack, TextField } from "@mui/material";
-import { Music, MusicParams } from "../core/models/music";
+import { importMusicTransaction, Music, MusicBuilder, MusicProperties } from "@/core/models/music";
 import { useLocation, useRoute } from "wouter";
-import { useSnackbar } from 'notistack';
-import { generateUUIDv4 } from "../core/utils";
+import { generateUUIDv4 } from "@/core/utils";
 import { Notify } from "@/core/notify";
+import PropertyBoard, { PropertyBoardProps } from "@/components/PropertyBoard";
 
 const VisuallyHiddenInput = styled('input')({
     clip: 'rect(0 0 0 0)',
@@ -27,37 +27,34 @@ export default function Settings() {
 
     const [audioFile, setAudioFile] = React.useState<File | null>(null);
     const [imageFile, setImageFile] = React.useState<File | null>(null);
-    const [musicObj, setMusicObj] = React.useState<MusicParams>({
+    const [properties, setProperties] = React.useState<Partial<MusicProperties>>({
         uuid: generateUUIDv4(),
-        title: "",
-        artist: "",
-        album: "",
-        version: "1.0.0",
-        thumbUrl: "",
-        location: {
-            ty: "Local",
-        },
-        properties: {}
+        title: '',
+        thumbnail: undefined,
+        properties: {},
+        status: {
+            local: true,
+            remote: [],
+        }
     });
 
     React.useEffect(() => {
         if (ok) {
-            const uuid = params.uuid;
-            async function fetchData() {
-                const music = await Music.fromUUID(uuid);
-                if (music) {
-                    console.log("has music", music);
-
-                    setMusicObj(music);
-                    const cover = await music.coverBlob();
-                    setImageFile(cover);
-                    const blob = await music.musicBlob();
-                    setAudioFile(blob);
-                } else {
-                    console.log("no music");
+            MusicBuilder.make(params.uuid).then((builder) => {
+                setProperties({
+                    uuid: builder.params.uuid,
+                    properties: builder.params.properties,
+                    title: builder.params.title,
+                    thumbnail: builder.params.thumbnail,
+                    status: builder.params.status,
+                });
+                if (builder.cover) {
+                    setImageFile(builder.cover);
                 }
-            }
-            fetchData();
+                if (builder.blob) {
+                    setAudioFile(builder.blob);
+                }
+            });
         }
     }, [params && params!.uuid]);
 
@@ -66,44 +63,69 @@ export default function Settings() {
             return false;
         }
         return true;
-    }, [audioFile, musicObj]);
+    }, [audioFile, properties]);
+
+    const memoProperties = React.useMemo(() => {
+        console.log("memoProperties", properties.properties);
+        return properties.properties ?? {};
+    }, [properties.properties]);
 
     const onSubmit = async () => {
         if (disableSubmit) {
             return;
         }
-        const music = await Music.fromParams(musicObj);
-        await music.dumpToDB(audioFile!, imageFile);
+        const builder = MusicBuilder.load(properties as MusicProperties);
+        const { music, blob, cover } = builder.build();
+        await importMusicTransaction(music, audioFile!, imageFile!);
         Notify.success("Success");
         navigate('/playlist/');
+    }
+
+    const onPropertiesChange: PropertyBoardProps['onChange'] = (_key, _value, _action, _properties) => {
+        let newProperties: MusicProperties['properties'] = _properties || {};
+        console.log("onPropertiesChange", _action, _key, _value, newProperties);
+        switch (_action) {
+            case 'addkey':
+                newProperties[_key] = "null";
+                break;
+            case 'delkey':
+                delete newProperties[_key];
+                break;
+            case 'addvalue':
+                if (!Array.isArray(newProperties[_key])) {
+                    newProperties[_key] = [newProperties[_key]];
+                }
+                newProperties[_key].push(_value);
+                break;
+            case 'delvalue':
+                newProperties[_key] = (newProperties[_key] as string[]).filter((v: string) => v !== _value);
+                break;
+            case 'replacekey':
+                newProperties[_key] = _value;
+                break;
+        }
+        setProperties({
+            ...properties,
+            properties: newProperties,
+        });
     }
 
     return (
         <Box component="section" sx={{ p: 2, border: '1px dashed grey' }}>
             <h3>Import</h3>
             <Stack spacing={2}>
+
                 <TextField id="outlined-basic" label="Title" variant="outlined"
-                    value={musicObj.title}
+                    value={properties?.title}
                     onChange={(event) => {
-                        // console.log(event.target.value)
-                        setMusicObj({ ...musicObj, title: event.target.value })
-                    }}
-                />
-                <TextField id="outlined-basic" label="Artist" variant="outlined"
-                    value={musicObj.artist}
-                    onChange={(event) => {
-                        // console.log(event.target.value)
-                        setMusicObj({ ...musicObj, artist: event.target.value })
-                    }}
-                />
-                <TextField id="outlined-basic" label="Album" variant="outlined"
-                    value={musicObj.album}
-                    onChange={(event) => {
-                        // console.log(event.target.value)
-                        setMusicObj({ ...musicObj, album: event.target.value })
+                        setProperties({
+                            ...properties,
+                            title: event.target.value,
+                        })
                     }}
                 />
                 {imageFile && <img src={URL.createObjectURL(imageFile)} alt="" />}
+
                 <Button
                     component="label"
                     role={undefined}
@@ -119,16 +141,17 @@ export default function Settings() {
                         onChange={(event) => {
                             // console.log(event.target.files)
                             if (event.target.files) {
-                                // const size = event.target.files[0].size
-                                // if (size > _2MB) {
-                                //     alert('File size should be smaller than 2MB')
-                                //     return
-                                // }
+                                const size = event.target.files[0].size
+                                if (size > _MB(10)) {
+                                    alert('File size should be smaller than 10MB')
+                                    return
+                                }
                                 setImageFile(event.target.files[0])
                             }
                         }}
                     />
                 </Button>
+
                 {audioFile && <>
                     <audio controls src={URL.createObjectURL(audioFile)} />
                     <div>{audioFile.name}</div>
@@ -150,26 +173,35 @@ export default function Settings() {
                             console.log(event.target.files)
                             if (event.target.files) {
                                 const f = event.target.files[0]
+                                const size = f.size
+                                if (size > _MB(20)) {
+                                    alert('Audio size should be smaller than 20MB')
+                                    return
+                                }
                                 const f_name = f.name.split('.')[0]
                                 setAudioFile(f)
-                                const { title, artist, album } = autoSplitFileName(f_name)
-                                setMusicObj({
-                                    ...musicObj,
-                                    title,
-                                    artist,
-                                    album,
+                                setProperties({
+                                    ...properties,
+                                    title: f_name,
                                 })
                             }
                         }}
                     />
                 </Button>
+
+                <PropertyBoard
+                    properties={memoProperties}
+                    canModify
+                    onChange={onPropertiesChange}
+                />
+
                 <Button variant="contained" disabled={disableSubmit} onClick={onSubmit}>Submit</Button>
             </Stack>
         </Box>
     );
 }
 
-const _2MB = 1024 * 1024 * 2
+const _MB = (x: number) => 1024 * 1024 * x
 function computeFileSize(size: number) {
     if (size < 1024) {
         return `${size} B`;

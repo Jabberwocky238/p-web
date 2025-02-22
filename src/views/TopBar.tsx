@@ -89,7 +89,7 @@ export default function ButtonAppBar() {
                 >
                     <MenuIcon />
                 </IconButton>
-                <CustomSeparator />
+
                 <Search>
                     <SearchIconWrapper>
                         <SearchIcon />
@@ -167,29 +167,3 @@ function UserSetting() {
     )
 }
 
-import Breadcrumbs from '@mui/material/Breadcrumbs';
-import NavigateNextIcon from '@mui/icons-material/NavigateNext';
-
-
-function CustomSeparator() {
-    const [location, navigate] = useLocation();
-    const [breadcrumbs, setBreadcrumbs] = React.useState<string[]>([]);
-
-    React.useEffect(() => {
-        const path = location.split("/");
-        setBreadcrumbs(path);
-    }, [location]);
-
-    return (
-        <Breadcrumbs
-            separator={<NavigateNextIcon fontSize="small" />}
-            aria-label="breadcrumb"
-        >
-            {breadcrumbs.map((bbb, index) => (
-                <Typography key={index + 1} sx={{ color: 'text.primary' }}>
-                    {bbb}
-                </Typography>
-            ))}
-        </Breadcrumbs>
-    );
-}

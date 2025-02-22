@@ -1,4 +1,5 @@
-import { Music, MusicActions, MusicParams } from ".";
+import { useDB } from "@/core/indexedDB";
+import { Music, MUSIC_BLOB, MUSIC_COVER, MusicActions, MusicProperties } from ".";
 
 const API_BASE_URL = process.env.BACKEND_API!;
 
@@ -27,19 +28,7 @@ export class RemoteMusicAdapter implements MusicActions {
         // request to backend
         return await musicBlob(this.apiBaseUrl, this.uuid);
     }
-
-    static async upload(music: Music) {
-        const { uuid, exist } = await checkRemoteExist(music.uuid);
-        if (exist) {
-            return {
-                status: 204,
-            }
-        }
-        const data = await uploadMusic(music);
-        return data;
-    }
 }
-
 
 export async function downloadMusic(uuid: string) {
     const url = `${API_BASE_URL}/music/metadata?uuid=${uuid}`;
@@ -49,18 +38,18 @@ export async function downloadMusic(uuid: string) {
     const data = await res.json() as {
         uuid: string,
         title: string,
-        artist: string,
-        album: string,
-        thumbUrl: string,
+        thumbnail: string,
+        properties: {
+            [key: string]: string | string[];
+        },
     }
     return {
         ...data,
-        version: "1.0.0",
-        location: {
-            ty: "Remote",
-            apiBaseUrl: API_BASE_URL,
-        },
-    } as MusicParams;
+        status: {
+            local: false,
+            remote: [API_BASE_URL],
+        }
+    } as MusicProperties;
 }
 
 export async function allRemoteMusic() {
@@ -71,19 +60,31 @@ export async function allRemoteMusic() {
     const data = await res.json() as {
         uuid: string,
         title: string,
-        artist: string,
-        album: string,
-        thumbUrl: string,
+        thumbnail: string,
+        properties: string
     }[]
-    return data.map(item => {
+    const data2 = data.map(item => {
+        item.properties = item.properties.replace(/\\/g, "")
+        try {
+            return {
+                ...item,
+                properties: JSON.parse(item.properties),
+            }
+        } catch (e) {
+            return {
+                ...item,
+                properties: {},
+            }
+        }
+    })
+    return data2.map(item => {
         return {
             ...item,
-            version: "1.0.0",
-            location: {
-                ty: "Remote",
-                apiBaseUrl: API_BASE_URL,
+            status: {
+                local: false,
+                remote: [API_BASE_URL],
             }
-        } as MusicParams;
+        } as MusicProperties;
     });
 }
 
@@ -116,42 +117,3 @@ async function musicBlob(api: string, uuid: string) {
 }
 
 
-
-export async function checkRemoteExist(uuid: string) {
-    const url = `${API_BASE_URL}/music/exists?uuid=${uuid}`;
-    const res = await fetch(url, {
-        method: 'GET',
-    });
-    const data: {
-        uuid: string,
-        exist: boolean,
-    } = await res.json();
-    return data
-}
-
-export async function uploadMusic(music: Music) {
-    const formData = new FormData();
-
-    const musicBlob = await music.musicBlob();
-    const coverBlob = await music.coverBlob();
-
-    formData.append('uuid', music.uuid);
-    formData.append('title', music.title);
-    formData.append('artist', music.artist);
-    formData.append('album', music.album);
-    formData.append('thumbUrl', music.thumbUrl);
-    formData.append('version', music.version);
-    formData.append('musicBlob', musicBlob);
-    formData.append('coverBlob', coverBlob);
-
-    const url = `${API_BASE_URL}/music/upload`;
-    const res = await fetch(url, {
-        method: 'POST',
-        body: formData,
-    });
-    const data = await res.json();
-    return {
-        uuid: data.uuid,
-        status: res.status,
-    }
-}

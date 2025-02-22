@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Music } from "../core/models/music";
+import { importMusicTransaction, Music } from "../core/models/music";
 import { BUS, Handler } from "../core/bus";
 import { useLocation, useRoute } from "wouter";
 import SquareImage from "../components/SquareImage";
@@ -7,24 +7,52 @@ import Chip from "@mui/material/Chip";
 import FaceIcon from '@mui/icons-material/Face';
 import Stack from "@mui/material/Stack";
 import EditIcon from '@mui/icons-material/Edit';
+import DeleteIcon from '@mui/icons-material/Delete';
 import { Notify } from "@/core/notify";
 import { RemoteMusicAdapter } from "@/core/models/music/remote-adapter";
-import DeleteIcon from '@mui/icons-material/Delete';
+import Typography from "@mui/material/Typography";
+import PropertyBoard from "@/components/PropertyBoard";
+import Box from "@mui/material/Box";
 import { LocalMusicAdapter } from "@/core/models/music/local-adapter";
+import { CacheControl } from "@/core/models/music/cache";
+
+const API = process.env.BACKEND_API!;
 
 const btnDelete = async (music: Music) => {
-    LocalMusicAdapter.deleteCache(music.uuid);
-    localStorage.removeItem("musicUUID");
+    const cache = new CacheControl(music);
+    await cache.clear();
+    Notify.success("Delete success");
 }
 
 const btnDownload = async (music: Music) => {
-    console.log("Downloading music...");
-    const musicBlob = await music.musicBlob();
-    console.log("Downloading cover...");
-    const coverBlob = await music.coverBlob();
-    console.log("Dumping to DB...");
-    await music.dumpToDB(musicBlob, coverBlob);
+    const cache = new CacheControl(music);
+    await cache.cache();
+    Notify.success("Download success");
 }
+
+const btnUpload = async (music: Music) => {
+    // console.log("You clicked the Chip.");
+    // enqueueSnackbar("Uploading music...Plz Wait", { variant: "info" });
+    if (!music) {
+        Notify.error("Music not found");
+        return;
+    }
+    // if (music.status.remote.length > 0) {
+    //     Notify.info("music is already uploaded to" + music.status.remote[0]);
+    //     return;
+    // }
+    Notify.info("Uploading music...Plz Wait");
+    try {
+        const cache = new CacheControl(music);
+        const data = await cache.upload(API);
+        Notify.success("Upload success");
+    } catch (error) {
+        console.error(error);
+        Notify.error("Upload failed");
+    }
+    // console.log(data);
+}
+
 
 export default function MusicDetail() {
     const [ok, params] = useRoute("/music/:uuid");
@@ -32,6 +60,7 @@ export default function MusicDetail() {
     const [music, setMusic] = useState<Music | null>(null);
     const [coverUrl, setCoverUrl] = useState<string>("");
     const [location, navigate] = useLocation();
+    const [isLocal, setIsLocal] = useState(false);
 
     useEffect(() => {
         (async () => {
@@ -42,6 +71,7 @@ export default function MusicDetail() {
             const { music, coverUrl } = await retrieveMusicMetadata(params.uuid);
             setMusic(music);
             setCoverUrl(coverUrl);
+            setIsLocal(music.status.local);
         })();
     }, [params && params.uuid]);
 
@@ -50,6 +80,7 @@ export default function MusicDetail() {
             retrieveMusicMetadata(musicUUID).then(({ music, coverUrl }) => {
                 setMusic(music);
                 setCoverUrl(coverUrl);
+                setIsLocal(music.status.local);
             });
         };
         BUS.on("switchMusic", handler);
@@ -57,26 +88,6 @@ export default function MusicDetail() {
             BUS.off("switchMusic", handler);
         }
     }, []);
-
-    const handleClick = async () => {
-        // console.log("You clicked the Chip.");
-        // enqueueSnackbar("Uploading music...Plz Wait", { variant: "info" });
-        Notify.info("Uploading music...Plz Wait");
-        try {
-            const data = await RemoteMusicAdapter.upload(music!);
-            if (data?.status !== 200) {
-                // enqueueSnackbar("You have already uploaded", { variant: "info" });
-                Notify.info("You have already uploaded");
-            } else {
-                // enqueueSnackbar("Upload success", { variant: "success" });
-                Notify.success("Upload success");
-            }
-        } catch (error) {
-            // enqueueSnackbar("Upload failed", { variant: "error" });
-            Notify.error("Upload failed");
-        }
-        // console.log(data);
-    }
 
     return (
         <>
@@ -88,26 +99,27 @@ export default function MusicDetail() {
                     <Stack direction="row" spacing={1}>
                         <Chip
                             icon={<FaceIcon />}
-                            label={"Upload"}
-                            onClick={handleClick}
+                            label={"Upload / Update"}
+                            onClick={() => {
+                                btnUpload(music);
+                            }}
                             color={"default"}
                         />
-                        {music && music.location.ty === 'Local' && <Chip
+                        {isLocal && <Chip
                             icon={<DeleteIcon />}
                             label={"Delete"}
                             onClick={() => {
                                 btnDelete(music);
-                                navigate('/');
+                                setIsLocal(false);
                             }}
                             color="error"
                         />}
-                        {music && music.location.ty === 'Remote' && <Chip
+                        {!isLocal && <Chip
                             icon={<DeleteIcon />}
                             label={"Download"}
                             onClick={async () => {
                                 btnDownload(music);
-                                Notify.success("Download success");
-                                music.location.ty = 'Local';
+                                setIsLocal(true);
                             }}
                             color="success"
                         />}
@@ -121,7 +133,12 @@ export default function MusicDetail() {
                             color="primary"
                         />
                     </Stack>
-
+                    <Box minWidth={360} justifyItems={'center'}>
+                        <PropertyBoard
+                            properties={music.properties}
+                            onChange={() => { }} canModify={false}
+                        />
+                    </Box>
                 </Stack>
             )}
         </>
@@ -134,7 +151,7 @@ async function retrieveMusicMetadata(uuid: string) {
         throw new Error("Music not found");
     }
     console.log(music);
-    const coverUrl = await music.coverUrl();
+    const coverUrl = await music.adapter().coverUrl();
     return { music, coverUrl } as {
         music: Music,
         coverUrl: string,

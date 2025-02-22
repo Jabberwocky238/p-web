@@ -1,4 +1,4 @@
-import { IDBPDatabase, openDB } from 'idb';
+import { IDBPDatabase, IDBPTransaction, openDB } from 'idb';
 
 import { objectStores as music_objectStores } from './models/music';
 import { objectStores as playlist_objectStores } from './models/playlist';
@@ -51,10 +51,9 @@ export async function useDB() {
 }
 
 export class IDBwarpper {
-    private db: IDBPDatabase;
-    constructor(db: IDBPDatabase) {
-        this.db = db;
-    }
+    constructor(
+        private db: IDBPDatabase
+    ) { }
 
     create<T>(objectStore: string) {
         return new _IDBwarpper<T>(this.db, objectStore);
@@ -62,34 +61,31 @@ export class IDBwarpper {
 }
 
 class _IDBwarpper<T> {
-    private db: IDBPDatabase;
-    private objectStore: string;
-    constructor(db: IDBPDatabase, objectStore: string) {
-        this.db = db;
-        this.objectStore = objectStore
-    }
+    constructor(
+        private db: IDBPDatabase,
+        private objectStore: string
+    ) { }
 
-    async addData(data: T) {
+    async add(data: T) {
         return await this.db.add(this.objectStore, data);
     }
 
-    async getData(id: string): Promise<T | undefined> {
-        return await this.db.get(this.objectStore, id);
+    async get(id: string) {
+        return await this.db.get(this.objectStore, id) as T | undefined;
     }
 
-    async putData(id: string, data: T) {
+    async put(id: string, data: T) {
         return await this.db.put(this.objectStore, {
             ...data,
             uuid: id,
         });
     }
 
-    async deleteData(id: string) {
+    async delete(id: string) {
         return await this.db.delete(this.objectStore, id);
     }
 
-    async getAllData() {
+    async getAll() {
         return await this.db.getAll(this.objectStore) as T[];
     }
 }
-

@@ -31,7 +31,7 @@ export class Playlist {
 
     static async fromUUID(uuid: string): Promise<Playlist | undefined> {
         const db = await useDB();
-        const metadata = await db.create<PlaylistParams>(PLAYLIST_METADATA).getData(uuid);
+        const metadata = await db.create<PlaylistParams>(PLAYLIST_METADATA).get(uuid);
         if (!metadata) {
             return undefined;
         }
@@ -40,7 +40,7 @@ export class Playlist {
 
     static async loadLocal(): Promise<Music[]> {
         const db = await useDB();
-        const metadata = await db.create<MusicParams>(MUSIC_METADATA).getAllData();
+        const metadata = await db.create<MusicParams>(MUSIC_METADATA).getAll();
         const musicList = [];
         for (const data of metadata) {
             const music = await Music.fromParams(data);
@@ -55,13 +55,13 @@ export class Playlist {
 
     static async getAll(): Promise<Playlist[]> {
         const db = await useDB();
-        const metadata = await db.create<PlaylistParams>(PLAYLIST_METADATA).getAllData();
+        const metadata = await db.create<PlaylistParams>(PLAYLIST_METADATA).getAll();
         return metadata.map(_PlaylistBuilder);
     }
 
     async dumpToDB() {
         const db = await useDB();
-        await db.create(PLAYLIST_METADATA).putData(this.uuid, {
+        await db.create(PLAYLIST_METADATA).put(this.uuid, {
             name: this.name,
             createdAt: this.createdAt,
             updatedAt: this.updatedAt,
