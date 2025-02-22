@@ -3,13 +3,8 @@ import AudioPlayer from 'react-h5-audio-player';
 import 'react-h5-audio-player/lib/styles.css';
 import { BUS, Handler } from '../core/bus';
 import { Music } from '../core/models/music';
-import { Playlist } from '../core/models/playlist';
-import { useLocation } from 'wouter';
 import { useSnackbar } from 'notistack';
 import { Notify } from '@/core/notify';
-import Alert from '@mui/material/Alert';
-import ReactDOM from 'react-dom';
-import { generateUUIDv4 } from '@/core/utils';
 
 export default function () {
     const [tracks, setTracks] = React.useState<Music[]>([]);
@@ -50,10 +45,8 @@ export default function () {
             if (link) {
                 link.setAttribute('href', m.thumbnail!);
             }
-            const meta = document.querySelector('meta[name="description"]');
-            if (meta) {
-                meta.setAttribute('content', m.title);
-            }
+
+            changeMediaMetadata(m);
 
             // console.log("Player music", musicList, index, music);
             const src = await m.adapter().musicUrl();
@@ -74,18 +67,9 @@ export default function () {
             fetchMusic(musicUUID, playlistUUID)
         }
 
-
         Notify.init((data) => {
             const { message, variant } = data;
             enqueueSnackbar(message, { variant });
-            // const uuid = generateUUIDv4();
-            // ReactDOM.createPortal(
-            //     <Alert id={uuid} severity="info">This is an info Alert.</Alert>,
-            //     document.body
-            // )
-            // setTimeout(() => {
-            //     document.getElementById(uuid)?.remove();
-            // }, 1000);
         })
         // Notify.success("Notify init");
 
@@ -103,7 +87,6 @@ export default function () {
 
         BUS.on('switchMusic', _switchMusicHandler)
         return () => {
-            // console.log("Player unmount");
             BUS.off('switchMusic', _switchMusicHandler);
         }
     }, []);
@@ -127,4 +110,36 @@ export default function () {
             />
         </div>
     );
+}
+
+function changeMediaMetadata(music: Music) {
+    let artists = 'Unknown Artist';
+    if (music.properties.hasOwnProperty('artist')) {
+        if (Array.isArray(music.properties['artist'])) {
+            artists = music.properties['artist'].join(', ');
+        } else {
+            artists = music.properties['artist'];
+        }
+    }
+    let album = 'Unknown Album';
+    if (music.properties.hasOwnProperty('album')) {
+        if (Array.isArray(music.properties['album'])) {
+            artists = music.properties['album'].join(', ');
+        } else {
+            artists = music.properties['album'];
+        }
+    }
+    if ('mediaSession' in navigator) {
+        const mediaMetadata = new MediaMetadata({
+            title: music.title,
+            artist: artists,
+            album: album,
+            artwork: [{
+                src: music.thumbnail,
+                sizes: '400x400',
+                type: 'image/jpeg'
+            }]
+        });
+        navigator.mediaSession.metadata = mediaMetadata
+    }
 }

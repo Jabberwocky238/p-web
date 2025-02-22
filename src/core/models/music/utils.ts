@@ -1,5 +1,3 @@
-import { Music } from ".";
-
 export async function cropAndResizeImage(file: File): Promise<File> {
     // 创建图片对象
     const img = new Image();
