@@ -2,7 +2,7 @@
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import Typography from '@mui/material/Typography';
-import { Music, MusicProperties } from '../core/models/music';
+import { DEFAULT_THUMBNAIL, Music, MusicProperties } from '../core/models/music';
 import SquareImage from './SquareImage';
 import { useEffect, useState } from 'react';
 
@@ -12,10 +12,10 @@ interface PlaylistItemProps {
 }
 
 export default function MediaControlCard({ musicParams, onClick }: PlaylistItemProps) {
-    const [thumb, setThumb] = useState<string>("/default-album-pic.jfif");
+    const [thumb, setThumb] = useState<string>(DEFAULT_THUMBNAIL);
 
     useEffect(() => {
-        setThumb(musicParams.thumbnail || "/default-album-pic.jfif");
+        setThumb(musicParams.thumbnail || DEFAULT_THUMBNAIL);
     }, [musicParams]);
 
     return (

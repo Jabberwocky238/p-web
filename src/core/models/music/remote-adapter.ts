@@ -56,7 +56,7 @@ export async function allRemoteMusic(api: string) {
     const url = `${api}/music/all`;
     const res = await fetch(url, {
         method: 'GET',
-    });
+    })
     const data = await res.json() as {
         uuid: string,
         title: string,
@@ -96,7 +96,6 @@ async function musicCover(api: string, uuid: string) {
     const url = `${api}/music/cover?uuid=${uuid}`;
     const res = await fetch(url, {
         method: 'GET',
-        mode: "cors",
     });
     const blob = await res.blob();
     return blob as File;
@@ -110,7 +109,6 @@ async function musicBlob(api: string, uuid: string) {
     const url = `${api}/music/blob?uuid=${uuid}`;
     const res = await fetch(url, {
         method: 'GET',
-        mode: "cors",
     } as RequestInit);
     const blob = await res.blob();
     return blob as File;

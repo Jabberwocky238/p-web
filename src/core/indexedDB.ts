@@ -23,7 +23,16 @@ const upgradeTasks = [
 ];
 
 export function criticalRemoveEverything() {
-    indexedDB.deleteDatabase('myDatabase');
+    const req = indexedDB.deleteDatabase('myDatabase');
+    req.onsuccess = () => {
+        alert('indexedDB removed');
+    };
+    req.onerror = () => {
+        alert('indexedDB remove failed');
+    };
+    req.onblocked = () => {
+        alert('indexedDB remove blocked');
+    };
 }
 
 export async function useDB() {

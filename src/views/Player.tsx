@@ -134,11 +134,12 @@ function changeMediaMetadata(music: Music) {
             title: music.title,
             artist: artists,
             album: album,
-            artwork: [{
-                src: music.thumbnail,
-                sizes: '400x400',
-                type: 'image/jpeg'
-            }]
+            artwork: []
+            // artwork: [{
+            //     src: music.thumbnail,
+            //     sizes: '400x400',
+            //     type: 'image/jpeg'
+            // }]
         });
         navigator.mediaSession.metadata = mediaMetadata
     }

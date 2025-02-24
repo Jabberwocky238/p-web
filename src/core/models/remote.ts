@@ -35,8 +35,8 @@ export class Remote {
         let metadata = await db.create<RemoteParams>(REMOTE_METADATA).getAll();
 
         if (metadata.length <= 1) {
-            ZERO_REMOTE.update();
-            FFFF_REMOTE.update();
+            DEFAULT_REMOTE.update();
+            DEBUG_REMOTE.update();
             metadata = await db.create<RemoteParams>(REMOTE_METADATA).getAll();
         }
 
@@ -57,7 +57,8 @@ export class Remote {
         await db.create(REMOTE_METADATA).delete(this.uuid);
     }
 }
-export const ZERO_UUID = '00000000-0000-0000-0000-000000000000';
-export const ZERO_REMOTE = new Remote(ZERO_UUID, 'Default', process.env.BACKEND_API!);
-export const FFFF_UUID = 'ffffffff-ffff-ffff-ffff-ffffffffffff';
-export const FFFF_REMOTE = new Remote(FFFF_UUID, 'Debug', 'http://localhost:23891');
+const ZERO_UUID = '00000000-0000-0000-0000-000000000000';
+const DEFAULT_REMOTE = new Remote(ZERO_UUID, 'Default', process.env.BACKEND_API!);
+
+const FFFF_UUID = 'ffffffff-ffff-ffff-ffff-ffffffffffff';
+const DEBUG_REMOTE = new Remote(FFFF_UUID, 'Debug', 'http://localhost:23891');

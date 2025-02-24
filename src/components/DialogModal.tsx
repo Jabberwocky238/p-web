@@ -2,17 +2,16 @@ import Button from "@mui/material/Button";
 import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
-import TextField from "@mui/material/TextField";
 
 // 添加key和value的功能
-interface ModalProps<T> {
+interface ModalProps {
     open: boolean,
     handleClose: () => void,
-    onSubmit: (value: T) => void
-    defaults?: T
+    onSubmit: (value: any) => void
+    children: React.ReactNode,
 }
 
-export function DialogModal({ open, handleClose, onSubmit, defaultValue }: ModalProps<T>) {
+export function DialogModal({ open, handleClose, onSubmit, children }: ModalProps) {
     return (
         <Dialog
             open={open}
@@ -24,24 +23,14 @@ export function DialogModal({ open, handleClose, onSubmit, defaultValue }: Modal
                         event.preventDefault();
                         const formData = new FormData(event.currentTarget);
                         const formJson = Object.fromEntries((formData as any).entries());
-                        onSubmit(formJson.objectKey);
+                        onSubmit(formJson);
                         handleClose();
                     },
                 },
             }}
         >
             <DialogContent>
-                <TextField
-                    autoFocus
-                    required
-                    margin="dense"
-                    id="name"
-                    name="objectKey"
-                    label="Please Enter"
-                    fullWidth
-                    variant="standard"
-                    defaultValue={defaultValue}
-                />
+                {children}
             </DialogContent>
             <DialogActions>
                 <Button onClick={handleClose}>Cancel</Button>

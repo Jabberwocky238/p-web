@@ -8,7 +8,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import { criticalRemoveEverything } from '@/core/indexedDB';
 import AddCircleOutline from '@mui/icons-material/AddCircleOutline';
-import { FFFF_UUID, Remote, RemoteParams, ZERO_UUID } from '@/core/models/remote';
+import { Remote, RemoteParams } from '@/core/models/remote';
 import { useEffect, useState } from 'react';
 import { generateUUIDv4 } from '@/core/utils';
 
@@ -101,7 +101,7 @@ interface SettingRemoteItemProps {
 }
 
 function SettingRemoteItem({ remote, onChange, onDelete }: SettingRemoteItemProps) {
-    const disabled = remote.uuid === ZERO_UUID || remote.uuid === FFFF_UUID;
+    const disabled = remote.uuid === '00000000-0000-0000-0000-000000000000' || remote.uuid === 'ffffffff-ffff-ffff-ffff-ffffffffffff';
     // const disabled = false
 
     return (
@@ -111,7 +111,6 @@ function SettingRemoteItem({ remote, onChange, onDelete }: SettingRemoteItemProp
                 <AvatarButton disabled={disabled} onClick={onChange} icon={<EditIcon />} />
                 <AvatarButton disabled={disabled} onClick={onDelete} icon={<DeleteIcon />} />
             </ListItem>
-
         </>
     )
 }

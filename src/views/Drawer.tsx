@@ -36,7 +36,6 @@ export const SETTINGS = [
 ]
 
 export default function DrawerList() {
-    const [openModal, setOpenModal] = React.useState(false);
     const [playlists, setPlaylists] = React.useState<Playlist[]>([]);
     const [location, navigate] = useLocation();
 
@@ -46,10 +45,10 @@ export default function DrawerList() {
 
     React.useEffect(() => {
         (async () => {
-            const playlists = await Playlist.getAll();
+            const playlists = await Playlist.getAllPlaylist();
             setPlaylists(playlists);
         })();
-    }, [openModal]);
+    }, []);
 
     return (
         <>
@@ -68,13 +67,6 @@ export default function DrawerList() {
                 </List>
                 <Divider />
                 <List>
-                    <DrawerItem key={"home"}
-                        icon={<InboxIcon />}
-                        onClick={() => {
-                            setOpenModal(true);
-                        }} >
-                        New Playlist
-                    </DrawerItem>
                     {playlists.map((obj) => (
                         <DrawerItem key={obj.uuid} icon={<ListItemIcon />} onClick={() => {
                             closeDrawer();
@@ -85,7 +77,6 @@ export default function DrawerList() {
                     ))}
                 </List>
             </Box>
-            <NewPlaylistModal open={openModal} handleClose={() => setOpenModal(false)} />
         </>
     );
 }

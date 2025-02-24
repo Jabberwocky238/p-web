@@ -12,6 +12,7 @@ import { Notify } from "@/core/notify";
 import PropertyBoard from "@/components/PropertyBoard";
 import Box from "@mui/material/Box";
 import { CacheControl } from "@/core/models/music/cache";
+import { AddCircleOutlineOutlined } from "@mui/icons-material";
 
 const API = process.env.BACKEND_API!;
 
@@ -22,6 +23,7 @@ const btnDelete = async (music: Music) => {
 }
 
 const btnDownload = async (music: Music) => {
+    Notify.info("Download start")
     const cache = new CacheControl(music);
     await cache.cache();
     Notify.success("Download success");
@@ -50,6 +52,11 @@ const btnExport = async (music: Music) => {
     a.href = url;
     a.download = music.title;
     a.click();
+}
+
+const btnAddTo = async (music: Music) => {
+    Notify.info("Adding music to playlist...");
+    console.log("Adding music to playlist...");
 }
 
 export default function MusicDetail() {
@@ -98,14 +105,14 @@ export default function MusicDetail() {
                     <strong>{music.title}</strong>
 
                     <Stack direction="row" spacing={1}>
-                        {isLocal && <Chip
+                        {/* {isLocal && <Chip
                             icon={<FaceIcon />}
                             label={"Upload / Update"}
                             onClick={() => {
                                 btnUpload(music);
                             }}
                             color={"default"}
-                        />}
+                        />} */}
                         {isLocal && <Chip
                             icon={<DeleteIcon />}
                             label={"Delete"}
@@ -138,6 +145,14 @@ export default function MusicDetail() {
                             onClick={(e) => {
                                 e.stopPropagation();
                                 navigate(`/import/${music.uuid}`);
+                            }}
+                            color="primary"
+                        />
+                        <Chip
+                            icon={<AddCircleOutlineOutlined />}
+                            label="AddTo"
+                            onClick={(e) => {
+                                btnAddTo(music);
                             }}
                             color="primary"
                         />

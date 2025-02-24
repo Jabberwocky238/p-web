@@ -1,10 +1,25 @@
 export async function cropAndResizeImage(file: File): Promise<File> {
-    // 创建图片对象
+    // 创建图片
     const img = new Image();
-    img.src = URL.createObjectURL(file);
-
-    await new Promise((resolve) => (img.onload = resolve));
-
+    await new Promise((resolve, reject) => {
+        // 创建图片对象
+        // console.log("Image Promise.");
+        // 绑定加载成功的事件处理器
+        img.onload = () => {
+            console.log("Image loaded successfully.");
+            resolve(img); // 图片加载完成，解析 Promise
+        };
+        // 绑定加载失败的事件处理器
+        img.onerror = (e) => {
+            console.error(e);
+            reject(e);
+        };
+        // 设置图片源
+        // console.log("Image Promise.", file);
+        img.src = URL.createObjectURL(file);
+        // console.log("Image Promise.", img.src);
+    });
+    // console.log("Image loaded.");
     // 计算裁剪区域
     const size = Math.min(img.width, img.height);
     const x = (img.width - size) / 2;
@@ -28,11 +43,11 @@ export async function cropAndResizeImage(file: File): Promise<File> {
     return new Promise((resolve) => {
         canvas.toBlob((blob) => {
             const f = new File([blob!], file.name, {
-                type: 'image/jpeg',
+                type: 'image/png',
                 lastModified: Date.now(),
             });
             resolve(f);
-        }, 'image/jpeg', 0.9);
+        }, 'image/png', 0.9);
     });
 }
 

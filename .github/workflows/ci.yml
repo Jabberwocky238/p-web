@@ -4,7 +4,8 @@ on:
   push:
     branches:
       - main  # 触发条件，可以根据你需要的分支修改
-
+  workflow_dispatch:  # 也可以手动触发
+  
 jobs:
   build:
     runs-on: ubuntu-latest

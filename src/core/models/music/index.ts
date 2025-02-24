@@ -15,6 +15,7 @@ export interface MusicProperties {
         remote: string[],
     }
 }
+export const DEFAULT_THUMBNAIL = "/default-album-pic.jfif";
 
 export interface MusicActions {
     coverUrl(): Promise<string>,

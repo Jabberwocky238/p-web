@@ -1,4 +1,5 @@
 import { useDB } from "../indexedDB";
+import { Music, MUSIC_METADATA, MusicProperties } from "./music";
 
 export type PlaylistParams = {
     uuid: string;
@@ -30,10 +31,64 @@ export class Playlist {
         return Playlist.fromParams(metadata);
     }
 
-    static async getAll(): Promise<Playlist[]> {
+    static async getAllPlaylist(): Promise<Playlist[]> {
         const db = await useDB();
-        const metadata = await db.create<PlaylistParams>(PLAYLIST_METADATA).getAll();
+        let metadata = await db.create<PlaylistParams>(PLAYLIST_METADATA).getAll();
+        if (metadata.length <= 1) {
+            await Playlist.initDefaults();
+            metadata = await db.create<PlaylistParams>(PLAYLIST_METADATA).getAll();
+        }
         return metadata.map(Playlist.fromParams);
+    }
+
+    static async initDefaults() {
+        const db = await useDB();
+        const l = await db.create<PlaylistParams>(PLAYLIST_METADATA).get(LOCAL_PLAYLIST.uuid)
+        if (!l) {
+            await LOCAL_PLAYLIST.dumpToDB();
+        }
+        const h = await db.create<PlaylistParams>(PLAYLIST_METADATA).get(HEART_PLAYLIST.uuid)
+        if (!h) {
+            await HEART_PLAYLIST.dumpToDB();
+        }
+        const t = await db.create<PlaylistParams>(PLAYLIST_METADATA).get(TEMP_PLAYLIST.uuid)
+        if (!t) {
+            await TEMP_PLAYLIST.dumpToDB();
+        }
+    }
+
+    async getAllMusic(): Promise<Music[]> {
+        const db = await useDB();
+        const datas = [];
+        for (const uuid of this.contains) {
+            const metadata = await db.create<MusicProperties>(MUSIC_METADATA).get(uuid);
+            if (metadata) {
+                datas.push(metadata);
+            }
+        }
+        return datas.map(Music.fromParams);
+    }
+
+    async addMusic(uuid: string) {
+        // check exist
+        if (this.contains.includes(uuid)) {
+            console.warn(`music ${uuid} already in playlist ${this.uuid}`);
+            return;
+        }
+        const music = await Music.fromUUID(uuid);
+        if (!music) {
+            console.warn(`music ${uuid} not found`);
+            return;
+        }
+        this.contains.push(uuid);
+        console.log(`music ${uuid} add to playlist ${this.uuid} suceeded`);
+    }
+    async delMusic(uuid: string) {
+        const index = this.contains.indexOf(uuid);
+        if (index === -1) {
+            return;
+        }
+        this.contains.splice(index, 1);
     }
 
     async dumpToDB() {
@@ -45,3 +100,12 @@ export class Playlist {
         });
     }
 }
+
+export const LOCAL_PLAYLIST_UUID = '00000000-0000-0000-0000-000000000000';
+const LOCAL_PLAYLIST = new Playlist(LOCAL_PLAYLIST_UUID, 'Local', []);
+
+export const HEART_PLAYLIST_UUID = 'ffffffff-ffff-ffff-ffff-ffffffffffff';
+const HEART_PLAYLIST = new Playlist(HEART_PLAYLIST_UUID, 'Heart', []);
+
+export const TEMP_PLAYLIST_UUID = 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa';
+const TEMP_PLAYLIST = new Playlist(TEMP_PLAYLIST_UUID, 'Temp', []);
