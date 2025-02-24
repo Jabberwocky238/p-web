@@ -80,7 +80,8 @@ export default defineConfig({
 			],
 		} as CopyRspackPluginOptions),
 		new rspack.DefinePlugin({
-			"process.env.BACKEND_API": isDev ? JSON.stringify("http://127.0.0.1:23891") : JSON.stringify("https://jw238.site/api"),
+			"process.env.BACKEND_API": isDev ? JSON.stringify("http://127.0.0.1:23891") : JSON.stringify("http://morefine.jw238.site:20000"),
+			// "process.env.BACKEND_API": isDev ? JSON.stringify("http://127.0.0.1:23891") : JSON.stringify("https://jw238.site/api"),
 		} as DefinePluginOptions),
 	].filter(Boolean),
 	optimization: {
