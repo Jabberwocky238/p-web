@@ -82,6 +82,7 @@ export class Playlist {
         }
         this.contains.push(uuid);
         console.log(`music ${uuid} add to playlist ${this.uuid} suceeded`);
+        await this.dumpToDB();
     }
     async delMusic(uuid: string) {
         const index = this.contains.indexOf(uuid);

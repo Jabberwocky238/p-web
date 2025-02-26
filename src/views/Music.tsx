@@ -13,6 +13,20 @@ import PropertyBoard from "@/components/PropertyBoard";
 import Box from "@mui/material/Box";
 import { CacheControl } from "@/core/models/music/cache";
 import { AddCircleOutlineOutlined } from "@mui/icons-material";
+import { DialogModal } from "@/components/DialogModal";
+import FormControl from "@mui/material/FormControl";
+import FormLabel from "@mui/material/FormLabel";
+import FormGroup from "@mui/material/FormGroup";
+import FormHelperText from "@mui/material/FormHelperText";
+import FormControlLabel from "@mui/material/FormControlLabel";
+import Checkbox from "@mui/material/Checkbox";
+import Dialog from "@mui/material/Dialog";
+import DialogTitle from "@mui/material/DialogTitle";
+import DialogContent from "@mui/material/DialogContent";
+import DialogContentText from "@mui/material/DialogContentText";
+import DialogActions from "@mui/material/DialogActions";
+import Button from "@mui/material/Button";
+import { LOCAL_PLAYLIST_UUID, Playlist } from "@/core/models/playlist";
 
 const API = process.env.BACKEND_API!;
 
@@ -54,9 +68,95 @@ const btnExport = async (music: Music) => {
     a.click();
 }
 
-const btnAddTo = async (music: Music) => {
-    Notify.info("Adding music to playlist...");
-    console.log("Adding music to playlist...");
+interface BtnAddToProps {
+    musicUUID: string;
+    local: boolean;
+}
+
+function BtnAddTo({ musicUUID, local }: BtnAddToProps) {
+    const [open, setOpen] = useState(false);
+    const [playlists, setPlaylists] = useState<Playlist[]>([]);
+    const [chosen, setChosen] = useState<boolean[]>([]);
+
+    const handleClickOpen = async () => {
+        const ps = await Playlist.getAllPlaylist()
+        if (local) {
+            setPlaylists(ps);
+        } else {
+            setPlaylists(ps.filter(p => p.uuid !== LOCAL_PLAYLIST_UUID));
+        }
+        setChosen(ps.map(() => false));
+        setOpen(true);
+    };
+    const handleClose = () => {
+        setOpen(false);
+    };
+    return (
+        <>
+            <Chip
+                icon={<AddCircleOutlineOutlined />}
+                label="AddTo"
+                onClick={handleClickOpen}
+                color="primary"
+            />
+            <Dialog
+                open={open}
+                onClose={handleClose}
+                slotProps={{
+                    paper: {
+                        component: 'form',
+                        onSubmit: (event: React.FormEvent<HTMLFormElement>) => {
+                            event.preventDefault();
+                            const formData = new FormData(event.currentTarget);
+                            const formJson = Object.fromEntries((formData as any).entries());
+                            for (const item of playlists) {
+                                if (item.title in formJson) {
+                                    // console.log(item.title);
+                                    item.addMusic(musicUUID).then(() => {
+                                        Notify.success("Add to playlist success");
+                                    })
+                                }
+                            }
+                            handleClose();
+                        },
+                    },
+                }}
+            >
+                <DialogTitle>Playlists</DialogTitle>
+                <DialogContent>
+                    <Stack spacing={1}>
+                        {playlists.map((p, index) => (
+                            <FormControlLabel
+                                key={index}
+                                control={<Checkbox
+                                    checked={chosen[index]}
+                                    onChange={() => setChosen(chosen.map((v, i) => i === index ? !v : v))}
+                                    name={p.title}
+                                />}
+                                label={p.title}
+                            />
+                        ))}
+                    </Stack>
+
+                    {/* <TextField
+                        autoFocus
+                        required
+                        margin="dense"
+                        id="name"
+                        name="email"
+                        label="Email Address"
+                        type="email"
+                        fullWidth
+                        variant="standard"
+                    /> */}
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={handleClose}>Cancel</Button>
+                    <Button type="submit">Subscribe</Button>
+                </DialogActions>
+            </Dialog>
+        </>
+    );
 }
 
 export default function MusicDetail() {
@@ -66,6 +166,7 @@ export default function MusicDetail() {
     const [coverUrl, setCoverUrl] = useState<string>("");
     const [location, navigate] = useLocation();
     const [isLocal, setIsLocal] = useState(false);
+    const [modal, setModal] = useState<React.ReactElement>();
 
     useEffect(() => {
         (async () => {
@@ -99,10 +200,11 @@ export default function MusicDetail() {
 
     return (
         <>
+            {modal}
             {music && (
                 <Stack spacing={2} sx={{ alignItems: 'center' }}>
                     <SquareImage src={coverUrl} width={'360px'} alt={music.title} />
-                    <strong>{music.title}</strong>
+                    <strong style={{ width: '80%', textAlign: 'center' }}>{music.title}</strong>
 
                     <Stack direction="row" spacing={1}>
                         {/* {isLocal && <Chip
@@ -139,7 +241,7 @@ export default function MusicDetail() {
                             }}
                             color="success"
                         />}
-                        <Chip
+                        {isLocal && <Chip
                             icon={<EditIcon />}
                             label="Edit"
                             onClick={(e) => {
@@ -147,15 +249,8 @@ export default function MusicDetail() {
                                 navigate(`/import/${music.uuid}`);
                             }}
                             color="primary"
-                        />
-                        <Chip
-                            icon={<AddCircleOutlineOutlined />}
-                            label="AddTo"
-                            onClick={(e) => {
-                                btnAddTo(music);
-                            }}
-                            color="primary"
-                        />
+                        />}
+                        <BtnAddTo musicUUID={music.uuid} local={isLocal} />
                     </Stack>
                     <Box minWidth={360} justifyItems={'center'}>
                         <PropertyBoard
@@ -181,3 +276,9 @@ async function retrieveMusicMetadata(uuid: string) {
         coverUrl: string,
     };
 }
+
+const BACKGROUND_FILTER = (url: string) => ({
+    background: `url('${url}') no-repeat center center fixed`,
+    backdropFilter: 'blur(10px)',
+    backgroundSize: 'cover',
+} as React.CSSProperties);

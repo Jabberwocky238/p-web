@@ -43,11 +43,11 @@ export async function cropAndResizeImage(file: File): Promise<File> {
     return new Promise((resolve) => {
         canvas.toBlob((blob) => {
             const f = new File([blob!], file.name, {
-                type: 'image/png',
+                type: 'image/jpeg',
                 lastModified: Date.now(),
             });
             resolve(f);
-        }, 'image/png', 0.9);
+        }, 'image/jpeg', 0.9);
     });
 }
 

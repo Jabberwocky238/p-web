@@ -12,7 +12,7 @@ import { BUS } from '@/core/bus';
 import EditIcon from '@mui/icons-material/Edit';
 import React from 'react';
 import NewPlaylistModal from '@@/NewPlaylistModal';
-import { Playlist } from '@/core/models/playlist';
+import { LOCAL_PLAYLIST_UUID, Playlist } from '@/core/models/playlist';
 import DrawerItem from '@/components/DrawerItem';
 
 
@@ -46,7 +46,7 @@ export default function DrawerList() {
     React.useEffect(() => {
         (async () => {
             const playlists = await Playlist.getAllPlaylist();
-            setPlaylists(playlists);
+            setPlaylists(playlists.filter(p => p.uuid !== LOCAL_PLAYLIST_UUID));
         })();
     }, []);
 

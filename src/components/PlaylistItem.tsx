@@ -5,11 +5,25 @@ import Typography from '@mui/material/Typography';
 import { DEFAULT_THUMBNAIL, Music, MusicProperties } from '../core/models/music';
 import SquareImage from './SquareImage';
 import { useEffect, useState } from 'react';
+import { isMobile } from '@/core/utils';
+import { styled } from '@mui/material/styles';
+import Paper from '@mui/material/Paper';
 
 interface PlaylistItemProps {
     musicParams: MusicProperties;
     onClick?: () => void;
 }
+
+const Item = styled(Paper)(({ theme }) => ({
+    // backgroundColor: '#fff',
+    ...theme.typography.body2,
+    padding: theme.spacing(1),
+    color: theme.palette.text.secondary,
+    // ...theme.applyStyles('dark', {
+    //     backgroundColor: '#1A2027',
+    // }),
+}));
+
 
 export default function MediaControlCard({ musicParams, onClick }: PlaylistItemProps) {
     const [thumb, setThumb] = useState<string>(DEFAULT_THUMBNAIL);
@@ -19,10 +33,14 @@ export default function MediaControlCard({ musicParams, onClick }: PlaylistItemP
     }, [musicParams]);
 
     return (
-        <Card sx={{ display: 'flex', flexDirection: 'row' }} onClick={onClick}>
-            <SquareImage src={thumb} forceSquare width={"20%"} />
-            <CardContent sx={{ flex: '1 0 auto', flexGrow: 1, width: '80%' }}>
-                <strong>{musicParams.title}</strong>
+        <Item sx={{ display: 'flex', flexDirection: 'row' }} onClick={onClick}>
+            <SquareImage src={thumb} width={isMobile() ? '70px' : '240px'} />
+            <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'flex-start', marginLeft: '10px' }}>
+                <strong style={{
+                    whiteSpace: 'nowrap',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                }}>{musicParams.title}</strong>
                 <div style={{ width: '100%' }}>
                     {Object.entries(musicParams.properties).map(([key, value]) => {
                         return (
@@ -32,7 +50,7 @@ export default function MediaControlCard({ musicParams, onClick }: PlaylistItemP
                         );
                     })}
                 </div>
-            </CardContent>
+            </div>
             {/* <ButtonGroup
                 orientation="vertical"
                 variant="text"
@@ -47,6 +65,6 @@ export default function MediaControlCard({ musicParams, onClick }: PlaylistItemP
                 <IconButton key="two">Two</IconButton >
                 <IconButton key="three">Three</IconButton >
             </ButtonGroup> */}
-        </Card>
+        </Item>
     );
 }

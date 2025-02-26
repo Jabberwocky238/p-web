@@ -14,25 +14,36 @@ const upgradeTasks = [
         for (const store of playlist_objectStores) {
             db.createObjectStore(store, { keyPath: 'uuid' });
         }
-    },
-    (db: IDBPDatabase) => {
         for (const store of remote_objectStores) {
             db.createObjectStore(store, { keyPath: 'uuid' });
         }
-    }
+    },
 ];
 
-export function criticalRemoveEverything() {
-    const req = indexedDB.deleteDatabase('myDatabase');
-    req.onsuccess = () => {
-        alert('indexedDB removed');
-    };
-    req.onerror = () => {
-        alert('indexedDB remove failed');
-    };
-    req.onblocked = () => {
-        alert('indexedDB remove blocked');
-    };
+export async function criticalRemoveEverything() {
+
+    function clearOtherThings() {
+        localStorage.clear();
+        sessionStorage.clear();
+    }
+
+    return await new Promise((resolve, reject) => {
+        const req = indexedDB.deleteDatabase('myDatabase');
+        req.onsuccess = () => {
+            alert('indexedDB removed');
+            clearOtherThings();
+            resolve(undefined);
+        };
+        req.onerror = () => {
+            alert('indexedDB remove failed');
+            reject(undefined);
+        };
+        req.onblocked = () => {
+            alert('indexedDB removed');
+            clearOtherThings();
+            resolve(undefined);
+        };
+    })
 }
 
 export async function useDB() {
@@ -40,7 +51,7 @@ export async function useDB() {
         // console.log('instance', instance);
         return instance;
     }
-    const db = await openDB('myDatabase', 2, {
+    const db = await openDB('myDatabase', 1, {
         upgrade(db, oldVersion, newVersion, transaction) {
             console.log('upgrade', oldVersion, newVersion);
             if (!newVersion) {

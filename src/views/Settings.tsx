@@ -184,7 +184,9 @@ export default function Settings() {
             </List>
             <Button variant="contained" color='error' endIcon={<ImageIcon />}
                 onClick={() => {
-                    criticalRemoveEverything();
+                    criticalRemoveEverything().then(() => {
+                        window.location.href = '/';
+                    });
                 }}
             >
                 清理所有缓存内容

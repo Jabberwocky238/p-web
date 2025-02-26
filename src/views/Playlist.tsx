@@ -1,6 +1,6 @@
 
 import Box from '@mui/material/Box';
-import Paper from '@mui/material/Paper';
+
 import Stack from '@mui/material/Stack';
 import { styled } from '@mui/material/styles';
 import { Music, MusicProperties } from '@/core/models/music';
@@ -13,17 +13,8 @@ import PlaylistContainModal from '@@/PlaylistContainModal';
 import { LOCAL_PLAYLIST_UUID, Playlist } from '@/core/models/playlist';
 import { Notify } from '@/core/notify';
 import { BUS } from '@/core/bus';
+import PlaylistView from '@/components/Playlist';
 
-const Item = styled(Paper)(({ theme }) => ({
-    backgroundColor: '#fff',
-    ...theme.typography.body2,
-    padding: theme.spacing(1),
-    textAlign: 'center',
-    color: theme.palette.text.secondary,
-    ...theme.applyStyles('dark', {
-        backgroundColor: '#1A2027',
-    }),
-}));
 
 export default function BasicStack() {
     const [ok, params] = useRoute("/playlist/:uuid");
@@ -41,12 +32,14 @@ export default function BasicStack() {
             const list = await Playlist.fromUUID(memoPlaylistUUID)
             if (list) {
                 const data = await list.getAllMusic();
-                setMusicList(data); console.log(data)
+                setMusicList(data);
+                console.log(memoPlaylistUUID, data)
             } else {
                 await Playlist.initDefaults()
-                const LOCAL_PLAYLIST = await Playlist.fromUUID(LOCAL_PLAYLIST_UUID);
-                const data = await LOCAL_PLAYLIST!.getAllMusic();
-                setMusicList(data); console.log(data)
+                const local = await Playlist.fromUUID(LOCAL_PLAYLIST_UUID);
+                const data = await local!.getAllMusic();
+                setMusicList(data);
+                console.log(memoPlaylistUUID, data)
             }
 
         })();
@@ -92,13 +85,7 @@ export default function BasicStack() {
         <>
             <Box sx={{ width: '100%' }}>
                 {ok && <Button onClick={() => setShowModal(true)}>Edit Playlist</Button>}
-                <Stack spacing={2}>
-                    {musicList.map((music) => (
-                        <Item key={music.uuid}>
-                            <PlaylistItem musicParams={music} onClick={() => jump(music)} />
-                        </Item>
-                    ))}
-                </Stack>
+                <PlaylistView musicList={musicList} onItemClick={jump} />
             </Box>
             {ok && params.uuid && <PlaylistContainModal
                 open={showModal}

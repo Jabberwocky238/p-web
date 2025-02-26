@@ -3,7 +3,7 @@ import * as React from 'react';
 import { styled } from '@mui/material/styles';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import { Box, Stack, TextField } from "@mui/material";
-import { importMusicTransaction, Music, MusicBuilder, MusicProperties } from "@/core/models/music";
+import { importMusicTransaction, Music, MusicProperties } from "@/core/models/music";
 import { useLocation, useRoute } from "wouter";
 import { generateUUIDv4 } from "@/core/utils";
 import { Notify } from "@/core/notify";
@@ -40,21 +40,28 @@ export default function Settings() {
 
     React.useEffect(() => {
         if (ok) {
-            MusicBuilder.make(params.uuid).then((builder) => {
+            Music.fromUUID(params!.uuid).then((music) => {
+                if (!music) {
+                    return;
+                }
                 setProperties({
-                    uuid: builder.params.uuid,
-                    properties: builder.params.properties,
-                    title: builder.params.title,
-                    thumbnail: builder.params.thumbnail,
-                    status: builder.params.status,
+                    uuid: music.uuid,
+                    properties: music.properties,
+                    title: music.title,
+                    thumbnail: music.thumbnail,
+                    status: music.status,
                 });
-                if (builder.cover) {
-                    setImageFile(builder.cover);
-                }
-                if (builder.blob) {
-                    setAudioFile(builder.blob);
-                }
-            });
+                music.adapter().coverBlob().then((cover) => {
+                    if (cover) {
+                        setImageFile(cover);
+                    }
+                });
+                music.adapter().musicBlob().then((blob) => {
+                    if (blob) {
+                        setAudioFile(blob);
+                    }
+                });
+            })
         }
     }, [params && params!.uuid]);
 
@@ -74,8 +81,7 @@ export default function Settings() {
         if (disableSubmit) {
             return;
         }
-        const builder = MusicBuilder.load(properties as MusicProperties);
-        const { music, blob, cover } = builder.build();
+        const music = Music.fromParams(properties as MusicProperties);
         await importMusicTransaction(music, audioFile!, imageFile!);
         Notify.success("Success");
         navigate('/playlist/');

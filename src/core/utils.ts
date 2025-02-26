@@ -5,3 +5,11 @@ export function generateUUIDv4(): string {
         return value.toString(16); // 转换为十六进制字符串
     });
 }
+
+export function isMobile(): boolean {
+    // return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    // 屏幕宽度小于 768px 时，认为是移动端
+    // console.log(window.innerWidth);
+    return window.innerWidth < 768;
+}
+

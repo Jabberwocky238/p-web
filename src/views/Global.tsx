@@ -3,7 +3,7 @@ import Box from '@mui/material/Box';
 import Paper from '@mui/material/Paper';
 import Stack from '@mui/material/Stack';
 import { styled } from '@mui/material/styles';
-import { Music } from '@/core/models/music';
+import { Music, MusicProperties } from '@/core/models/music';
 import React from 'react';
 import PlaylistItem from '@@/PlaylistItem';
 import { Notify } from '@/core/notify';
@@ -11,6 +11,8 @@ import { BUS } from '@/core/bus';
 import { useLocation, useRoute } from 'wouter';
 import { Remote } from '@/core/models/remote';
 import { Button } from '@mui/material';
+import PlaylistView from '@/components/Playlist';
+import { CacheControl } from '@/core/models/music/cache';
 
 const Item = styled(Paper)(({ theme }) => ({
     backgroundColor: '#fff',
@@ -43,33 +45,23 @@ function RemotePlaylists({ uuid }: { uuid: string }) {
         })();
     }, []);
 
-    const jump = (music: Music) => {
+    const jump = (music: MusicProperties) => {
         const fn = async () => {
+            // 如果拿的是远程的音乐，就先fetch再播放
+            if (!music.status.local) {
+                const mm = Music.fromParams(music);
+                if (!mm.status.local) {
+                    // console.log("fetching remote music", music.uuid);
+                    await mm.dumpToDB();
+                }
+            }
             if (localStorage.getItem('musicUUID') === music.uuid) {
                 // 如果点击的是当前正在播放的音乐，不做任何操作
             } else {
-                // 如果拿的是远程的音乐，就先fetch再播放
-                if (!music.status.local) {
-                    // 检查是否已经下载
-                    const local = await Music.fromUUID(music.uuid);
-                    if (!local) {
-                        console.log("fetching remote music", music.uuid);
-                        await music.dumpToDB();
-                    } else {
-                        console.log("already downloaded", music.uuid);
-                    }
-
-                    BUS.emit('switchMusic', {
-                        musicUUID: music.uuid,
-                        playlistUUID: "NO_PLAYLIST",
-                    });
-                } else {
-                    BUS.emit('switchMusic', {
-                        musicUUID: music.uuid,
-                        playlistUUID: "NO_PLAYLIST",
-                    });
-                }
-
+                BUS.emit('switchMusic', {
+                    musicUUID: music.uuid,
+                    playlistUUID: "NO_PLAYLIST",
+                });
                 // console.log("MediaControlCard switchMusic", musicParams.uuid, playlistUUID);
             }
             navigate(`/music/${music.uuid}`);
@@ -78,13 +70,7 @@ function RemotePlaylists({ uuid }: { uuid: string }) {
     }
 
     return (
-        <Stack spacing={2}>
-            {musicList.map((music) => (
-                <Item key={music.uuid}>
-                    <PlaylistItem musicParams={{ ...music }} onClick={() => jump(music)} />
-                </Item>
-            ))}
-        </Stack>
+        <PlaylistView musicList={musicList} onItemClick={jump} />
     );
 }
 

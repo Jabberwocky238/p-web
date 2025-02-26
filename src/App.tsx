@@ -56,7 +56,7 @@ export default function App() {
 					<Drawer open={open} onClose={() => setOpen(false)}>
 						<DrawerList />
 					</Drawer>
-					<Container sx={{ flexGrow: 1 }}>
+					<div style={{ flexGrow: 1 }}>
 						<Switch>
 							{SETTINGS.map((obj) => (
 								<Route path={obj.link} key={obj.name}>
@@ -67,7 +67,7 @@ export default function App() {
 								<Redirect to="/playlist/" />
 							</Route>
 						</Switch>
-					</Container>
+					</div>
 				</Router>
 				<Player />
 			</Warp>
