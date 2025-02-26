@@ -20,7 +20,7 @@ export class CacheControl {
         // 清理出local playlist
         const LOCAL_PLAYLIST = await Playlist.fromUUID(LOCAL_PLAYLIST_UUID);
         await LOCAL_PLAYLIST!.delMusic(this.music.uuid);
-        await LOCAL_PLAYLIST!.dumpToDB();
+        await LOCAL_PLAYLIST!.update();
     }
     async cache() {
         // console.log("cache start")
@@ -47,7 +47,7 @@ export class CacheControl {
         // console.log("LOCAL_PLAYLIST")
         const LOCAL_PLAYLIST = await Playlist.fromUUID(LOCAL_PLAYLIST_UUID);
         await LOCAL_PLAYLIST!.addMusic(this.music.uuid);
-        await LOCAL_PLAYLIST!.dumpToDB();
+        await LOCAL_PLAYLIST!.update();
         // console.log("cache end")
     }
 

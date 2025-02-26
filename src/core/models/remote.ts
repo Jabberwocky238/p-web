@@ -56,5 +56,5 @@ export class Remote {
         await db.create(REMOTE_METADATA).delete(this.uuid);
     }
 }
-const ZERO_UUID = '00000000-0000-0000-0000-000000000000';
-const DEFAULT_REMOTE = new Remote(ZERO_UUID, 'Default', process.env.BACKEND_API!);
+export const DEFAULT_REMOTE_UUID = '00000000-0000-0000-0000-000000000000';
+const DEFAULT_REMOTE = new Remote(DEFAULT_REMOTE_UUID, 'Default', process.env.BACKEND_API!);

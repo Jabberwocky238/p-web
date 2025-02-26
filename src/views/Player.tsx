@@ -25,7 +25,9 @@ export default function () {
         changeMediaMetadata(music);
         const src = await music.adapter().musicUrl();
         setSrcComputed(src);
-        navigate(`/music/${musicUUID}`);
+        if (location.startsWith('/music/')) {
+            navigate(`/music/${musicUUID}`);
+        }
     }
 
     const switchMusic = (direction: "next" | "prev") => {

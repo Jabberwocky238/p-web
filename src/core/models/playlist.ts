@@ -45,15 +45,15 @@ export class Playlist {
         const db = await useDB();
         const l = await db.create<PlaylistParams>(PLAYLIST_METADATA).get(LOCAL_PLAYLIST.uuid)
         if (!l) {
-            await LOCAL_PLAYLIST.dumpToDB();
+            await LOCAL_PLAYLIST.update();
         }
         const h = await db.create<PlaylistParams>(PLAYLIST_METADATA).get(HEART_PLAYLIST.uuid)
         if (!h) {
-            await HEART_PLAYLIST.dumpToDB();
+            await HEART_PLAYLIST.update();
         }
         const t = await db.create<PlaylistParams>(PLAYLIST_METADATA).get(TEMP_PLAYLIST.uuid)
         if (!t) {
-            await TEMP_PLAYLIST.dumpToDB();
+            await TEMP_PLAYLIST.update();
         }
     }
 
@@ -82,7 +82,7 @@ export class Playlist {
         }
         this.contains.push(uuid);
         console.log(`music ${uuid} add to playlist ${this.uuid} suceeded`);
-        await this.dumpToDB();
+        await this.update();
     }
     async delMusic(uuid: string) {
         const index = this.contains.indexOf(uuid);
@@ -90,16 +90,20 @@ export class Playlist {
             return;
         }
         this.contains.splice(index, 1);
-        await this.dumpToDB();
+        await this.update();
     }
 
-    async dumpToDB() {
+    async update() {
         const db = await useDB();
         await db.create(PLAYLIST_METADATA).put(this.uuid, {
             uuid: this.uuid,
             title: this.title,
             contains: this.contains,
         });
+    }
+    async delete() {
+        const db = await useDB();
+        await db.create(PLAYLIST_METADATA).delete(this.uuid);
     }
 }
 

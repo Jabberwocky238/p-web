@@ -39,7 +39,7 @@ function MyTransferList({ uuid, setContains }: TransferListProps) {
                     contained.push(music);
                 }
             }
-            const all = await Music.getAllLocalMusic();
+            const all = await Music.getAllMusic();
             const notContained = all
                 .map((music) => music.uuid)
                 .filter((uuid) => !list.contains.includes(uuid))
@@ -107,7 +107,11 @@ function MyTransferList({ uuid, setContains }: TransferListProps) {
     };
 
     const customList = (items: Music[]) => (
-        <Paper sx={{ width: 200, height: 230, overflow: 'auto' }}>
+        <Paper sx={{
+            width: "100%",
+            height: "100%",
+            overflow: 'auto'
+        }}>
             <List dense component="div" role="list">
                 {items.map((value) => {
                     const labelId = `transfer-list-item-${value}-label`;
@@ -140,11 +144,22 @@ function MyTransferList({ uuid, setContains }: TransferListProps) {
         <Grid
             container
             spacing={2}
-            sx={{ justifyContent: 'center', alignItems: 'center' }}
+            // direction={isMobile() ? 'column' : 'row'}
+            sx={{
+                justifyContent: 'center',
+                alignItems: 'center',
+                height: "100%",
+            }}
         >
-            <Grid item>{customList(left)}</Grid>
-            <Grid item>
-                <Grid container direction="column" sx={{ alignItems: 'center' }}>
+            <Grid sx={{
+                width: "40%",
+                height: "100%",
+            }} item>{customList(left)}</Grid>
+            <Grid sx={{
+                width: "20%",
+                height: "100%",
+            }} item>
+                <Grid container direction={'column'} sx={{ alignItems: 'center' }}>
                     <Button
                         sx={{ my: 0.5 }}
                         variant="outlined"
@@ -187,21 +202,20 @@ function MyTransferList({ uuid, setContains }: TransferListProps) {
                     </Button>
                 </Grid>
             </Grid>
-            <Grid item>{customList(right)}</Grid>
+            <Grid sx={{
+                width: "40%",
+                height: "100%",
+            }} item>{customList(right)}</Grid>
         </Grid>
     );
 }
 
-import TextField from '@mui/material/TextField';
+
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
-import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
-import { useSnackbar } from 'notistack';
-import { useDB } from '../core/indexedDB';
 import { Playlist } from '../core/models/playlist';
-import { generateUUIDv4 } from '../core/utils';
 import { Music } from '../core/models/music';
 
 interface PlaylistContainModalProps {
@@ -210,30 +224,41 @@ interface PlaylistContainModalProps {
     uuid: string;
 }
 
+import { TransitionProps } from '@mui/material/transitions';
+import Slide from '@mui/material/Slide';
+import { Notify } from '@/core/notify';
+
+const Transition = React.forwardRef(function Transition(
+    props: TransitionProps & {
+        children: React.ReactElement<unknown>;
+    },
+    ref: React.Ref<unknown>,
+) {
+    return <Slide direction="up" ref={ref} {...props} />;
+});
+
 export default function PlaylistContainModal({ open, handleClose, uuid }: PlaylistContainModalProps) {
     const [contains, setContains] = React.useState<string[]>([]);
-    const { enqueueSnackbar } = useSnackbar();
 
     const handleCommit = async () => {
         const playlist = await Playlist.fromUUID(uuid);
         if (!playlist) {
-            enqueueSnackbar('Playlist not found', { variant: 'error' });
+            Notify.error("Playlist not found");
             handleClose();
             return;
         }
         playlist.contains = contains;
-        await playlist.dumpToDB();
-        enqueueSnackbar(`Playlist now have ${contains.length} musics, reload in 500ms`, { variant: 'success' });
+        await playlist.update();
+        Notify.success("Playlist updated");
         handleClose();
-        setTimeout(() => {
-            window.location.reload();
-        }, 500);
     }
 
     return (
         <Dialog
+            fullScreen
             open={open}
             onClose={handleClose}
+            TransitionComponent={Transition}
         >
             <DialogTitle>Edit Playlist</DialogTitle>
             <DialogContent>

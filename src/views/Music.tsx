@@ -13,11 +13,6 @@ import PropertyBoard from "@/components/PropertyBoard";
 import Box from "@mui/material/Box";
 import { CacheControl } from "@/core/models/music/cache";
 import { AddCircleOutlineOutlined } from "@mui/icons-material";
-import { DialogModal } from "@/components/DialogModal";
-import FormControl from "@mui/material/FormControl";
-import FormLabel from "@mui/material/FormLabel";
-import FormGroup from "@mui/material/FormGroup";
-import FormHelperText from "@mui/material/FormHelperText";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import Checkbox from "@mui/material/Checkbox";
 import Dialog from "@mui/material/Dialog";
@@ -156,29 +151,25 @@ export default function MusicDetail() {
     const [location, navigate] = useLocation();
     const [isLocal, setIsLocal] = useState(false);
 
-    const switchMusic = async (musicUUID: string) => {
-        const music = await Music.fromUUID(musicUUID);
-        if (!music) {
-            Notify.error("Music not found");
-            return;
-        }
-        setMusic(music);
-        setCoverUrl(music.thumbnail);
-        setIsLocal(music.status.local);
-    }
-
     useEffect(() => {
         (async () => {
             if (!ok) {
                 return;
             }
-            switchMusic(params.uuid);
+            const music = await Music.fromUUID(params.uuid);
+            if (!music) {
+                Notify.error("Music not found");
+                return;
+            }
+            setMusic(music);
+            setCoverUrl(music.thumbnail);
+            setIsLocal(music.status.local);
         })();
     }, [params && params.uuid]);
 
     useEffect(() => {
         const handler: Handler<'switchMusic'> = ({ musicUUID }) => {
-            switchMusic(musicUUID);
+            navigate(`/music/${musicUUID}`);
         };
         BUS.on("switchMusic", handler);
         return () => {

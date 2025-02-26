@@ -11,7 +11,7 @@ import { Button, ListItemText } from '@mui/material';
 import { BUS } from '@/core/bus';
 import EditIcon from '@mui/icons-material/Edit';
 import React from 'react';
-import NewPlaylistModal from '@@/NewPlaylistModal';
+import PlaylistSetting from '@/components/PlaylistSetting';
 import { LOCAL_PLAYLIST_UUID, Playlist } from '@/core/models/playlist';
 import DrawerItem from '@/components/DrawerItem';
 

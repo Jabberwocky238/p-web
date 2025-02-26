@@ -68,6 +68,15 @@ export class Music implements MusicProperties {
         } satisfies Omit<MusicProperties, 'uuid'>);
     }
 
+    static async getAllMusic(): Promise<Music[]> {
+        const db = await useDB();
+        const datas = await db.create<MusicProperties>(MUSIC_METADATA).getAll();
+
+        return datas.map(data => {
+            return Music.fromParams(data);
+        })
+    }
+
     static async getAllLocalMusic(): Promise<Music[]> {
         const db = await useDB();
         const datas = await db.create<MusicProperties>(MUSIC_METADATA).getAll();

@@ -1,5 +1,5 @@
 import { useDB } from "@/core/indexedDB";
-import { Music, MUSIC_BLOB, MUSIC_COVER, MUSIC_METADATA, MusicActions, MusicProperties } from ".";
+import { Music, MUSIC_BLOB, MUSIC_COVER, MusicActions } from ".";
 
 export class LocalMusicAdapter implements MusicActions {
     constructor(public uuid: string) { }
@@ -50,21 +50,6 @@ export class LocalMusicAdapter implements MusicActions {
             blob: File,
         };
         return data.blob;
-    }
-
-
-    static async deleteCache(uuid: string) {
-        const db = await useDB();
-        const music = await db.create(MUSIC_METADATA).get(uuid) as MusicProperties;
-        if (!music) {
-            return;
-        }
-        const music_ = Music.fromParams(music);
-        music_.status.local = false;
-        await music_.dumpToDB();
-
-        await db.create(MUSIC_BLOB).delete(uuid);
-        await db.create(MUSIC_COVER).delete(uuid);
     }
 }
 
