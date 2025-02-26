@@ -5,13 +5,28 @@ import { BUS, Handler } from '../core/bus';
 import { Music } from '../core/models/music';
 import { useSnackbar } from 'notistack';
 import { Notify } from '@/core/notify';
+import { NO_PLAYLIST_UUID, Playlist } from '@/core/models/playlist';
+import { useLocation } from 'wouter';
 
 export default function () {
-    const [tracks, setTracks] = React.useState<Music[]>([]);
+    const [tracks, setTracks] = React.useState<string[]>([]);
     const [index, setIndex] = React.useState<number>(0);
     const { enqueueSnackbar } = useSnackbar();
+    const [location, navigate] = useLocation();
 
     const [srcComputed, setSrcComputed] = React.useState<string>("");
+
+    const switchMusicFromUUID = async (musicUUID: string) => {
+        const music = await Music.fromUUID(musicUUID);
+        if (!music) {
+            Notify.error(`404 Music not found, uuid: ${musicUUID}`);
+            return;
+        }
+        changeMediaMetadata(music);
+        const src = await music.adapter().musicUrl();
+        setSrcComputed(src);
+        navigate(`/music/${musicUUID}`);
+    }
 
     const switchMusic = (direction: "next" | "prev") => {
         let newIndex: number;
@@ -25,66 +40,54 @@ export default function () {
             throw new Error("Invalid direction");
         }
         setIndex(newIndex);
-        const music = tracks[newIndex];
-        // console.log("switchMusic tracks", tracks);
-        BUS.emit('switchMusic', {
-            musicUUID: music.uuid,
-            playlistUUID: localStorage.getItem('playlistUUID'),
-        });
+        switchMusicFromUUID(tracks[newIndex]);
     }
 
-    async function fetchMusic(musicUUID: string, playlistUUID: string | null) {
+    async function fetchMusic(musicUUID: string, playlistUUID: string) {
         const m = await Music.fromUUID(musicUUID);
-        if (m) {
-            setTracks([m]);
-            setIndex(0);
-            // console.log("Player music", m);
-            // 修改html title，meta，icon
-            document.title = m.title;
-            const link = document.querySelector("link[rel~='icon']");
-            if (link) {
-                link.setAttribute('href', m.thumbnail!);
-            }
-
-            changeMediaMetadata(m);
-
-            // console.log("Player music", musicList, index, music);
-            const src = await m.adapter().musicUrl();
-            // console.log("Player music src", src);
-            setSrcComputed(src);
-        }
-        else {
+        if (!m) {
             Notify.error(`404 Music not found, uuid: ${musicUUID}`);
             return;
         }
+
+        let _tracks: string[] = [];
+        if (playlistUUID === NO_PLAYLIST_UUID) {
+            _tracks = [musicUUID];
+        } else {
+            const p = await Playlist.fromUUID(playlistUUID);
+            if (!p) {
+                Notify.error(`404 Playlist not found, uuid: ${playlistUUID}`);
+                return;
+            }
+            _tracks = p.contains;
+        }
+        setTracks(_tracks);
+        const index = _tracks.indexOf(musicUUID);
+        if (index === -1) {
+            Notify.error(`404 Music not found in playlist, musicUUID: ${musicUUID}, playlistUUID: ${playlistUUID}`);
+            return;
+        }
+        setIndex(index);
+        switchMusicFromUUID(musicUUID);
     }
 
     React.useEffect(() => {
-        // loading for first render
-        const musicUUID = localStorage.getItem('musicUUID');
-        const playlistUUID = localStorage.getItem('playlistUUID');
-        if (musicUUID) {
-            fetchMusic(musicUUID, playlistUUID)
-        }
-
         Notify.init((data) => {
             const { message, variant } = data;
             enqueueSnackbar(message, { variant });
         })
-        // Notify.success("Notify init");
 
+        // loading for first render
+        const musicUUID = localStorage.getItem('musicUUID');
+        const playlistUUID = localStorage.getItem('playlistUUID') ?? NO_PLAYLIST_UUID;
+        if (musicUUID) {
+            fetchMusic(musicUUID, playlistUUID)
+        }
         const _switchMusicHandler: Handler<'switchMusic'> = ({ musicUUID, playlistUUID }) => {
             localStorage.setItem('musicUUID', musicUUID);
-            if (!playlistUUID) {
-                localStorage.removeItem('playlistUUID');
-            } else if (playlistUUID !== localStorage.getItem('playlistUUID')) {
-                localStorage.setItem('playlistUUID', playlistUUID);
-            } else {
-                // 未修改playlist
-            }
+            localStorage.setItem('playlistUUID', playlistUUID);
             fetchMusic(musicUUID, playlistUUID);
         }
-
         BUS.on('switchMusic', _switchMusicHandler)
         return () => {
             BUS.off('switchMusic', _switchMusicHandler);
@@ -99,11 +102,17 @@ export default function () {
                 showSkipControls
                 showFilledVolume
                 showJumpControls={false}
-                loop
+                // loop
                 onClickPrevious={() => {
+                    console.log("onClickPrevious");
                     switchMusic("prev");
                 }}
                 onClickNext={() => {
+                    console.log("onClickNext");
+                    switchMusic("next");
+                }}
+                onEnded={() => {
+                    console.log("onEnded");
                     switchMusic("next");
                 }}
             // onPlay={e => console.log("onPlay")}
@@ -113,6 +122,12 @@ export default function () {
 }
 
 function changeMediaMetadata(music: Music) {
+    document.title = music.title;
+    const link = document.querySelector("link[rel~='icon']");
+    if (link) {
+        link.setAttribute('href', music.thumbnail);
+    }
+
     let artists = 'Unknown Artist';
     if (music.properties.hasOwnProperty('artist')) {
         if (Array.isArray(music.properties['artist'])) {
@@ -134,12 +149,12 @@ function changeMediaMetadata(music: Music) {
             title: music.title,
             artist: artists,
             album: album,
-            artwork: []
-            // artwork: [{
-            //     src: music.thumbnail,
-            //     sizes: '400x400',
-            //     type: 'image/jpeg'
-            // }]
+            // artwork: []
+            artwork: [{
+                src: music.thumbnail,
+                sizes: '400x400',
+                type: 'image/jpeg'
+            }]
         });
         navigator.mediaSession.metadata = mediaMetadata
     }

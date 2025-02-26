@@ -13,6 +13,7 @@ import { Remote } from '@/core/models/remote';
 import { Button } from '@mui/material';
 import PlaylistView from '@/components/Playlist';
 import { CacheControl } from '@/core/models/music/cache';
+import { NO_PLAYLIST_UUID } from '@/core/models/playlist';
 
 const Item = styled(Paper)(({ theme }) => ({
     backgroundColor: '#fff',
@@ -55,15 +56,10 @@ function RemotePlaylists({ uuid }: { uuid: string }) {
                     await mm.dumpToDB();
                 }
             }
-            if (localStorage.getItem('musicUUID') === music.uuid) {
-                // 如果点击的是当前正在播放的音乐，不做任何操作
-            } else {
-                BUS.emit('switchMusic', {
-                    musicUUID: music.uuid,
-                    playlistUUID: "NO_PLAYLIST",
-                });
-                // console.log("MediaControlCard switchMusic", musicParams.uuid, playlistUUID);
-            }
+            BUS.emit('switchMusic', {
+                musicUUID: music.uuid,
+                playlistUUID: NO_PLAYLIST_UUID,
+            });
             navigate(`/music/${music.uuid}`);
         }
         fn();

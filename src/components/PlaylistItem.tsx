@@ -34,13 +34,13 @@ export default function MediaControlCard({ musicParams, onClick }: PlaylistItemP
 
     return (
         <Item sx={{ display: 'flex', flexDirection: 'row' }} onClick={onClick}>
-            <SquareImage src={thumb} width={isMobile() ? '70px' : '240px'} />
+            <SquareImage src={thumb} width={isMobile() ? '100px' : '240px'} />
             <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'flex-start', marginLeft: '10px' }}>
-                <strong style={{
+                <h3 style={{
                     whiteSpace: 'nowrap',
                     overflow: 'hidden',
                     textOverflow: 'ellipsis',
-                }}>{musicParams.title}</strong>
+                }}>{musicParams.title}</h3>
                 <div style={{ width: '100%' }}>
                     {Object.entries(musicParams.properties).map(([key, value]) => {
                         return (
@@ -49,6 +49,14 @@ export default function MediaControlCard({ musicParams, onClick }: PlaylistItemP
                             </Typography>
                         );
                     })}
+                    <strong>status: {
+                        musicParams.status.local ? 'local' : musicParams.status.remote.length !== 0 ? 'remote' : 'unknown'
+                    }</strong>
+                    {musicParams.status.remote.length !== 0 && (
+                        <Typography variant="body2" color="text.secondary">
+                            remote: {musicParams.status.remote.join(', ')}
+                        </Typography>
+                    )}
                 </div>
             </div>
             {/* <ButtonGroup

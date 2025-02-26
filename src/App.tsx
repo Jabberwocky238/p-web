@@ -68,8 +68,8 @@ export default function App() {
 							</Route>
 						</Switch>
 					</div>
+					<Player />
 				</Router>
-				<Player />
 			</Warp>
 		</>
 	);

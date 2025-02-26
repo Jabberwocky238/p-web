@@ -61,17 +61,11 @@ export default function BasicStack() {
                     } else {
                         console.log("already downloaded", musicParams.uuid);
                     }
-
-                    BUS.emit('switchMusic', {
-                        musicUUID: musicParams.uuid,
-                        playlistUUID: "NO_PLAYLIST",
-                    });
-                } else {
-                    BUS.emit('switchMusic', {
-                        musicUUID: musicParams.uuid,
-                        playlistUUID: "NO_PLAYLIST",
-                    });
                 }
+                BUS.emit('switchMusic', {
+                    musicUUID: musicParams.uuid,
+                    playlistUUID: memoPlaylistUUID,
+                });
 
                 // console.log("MediaControlCard switchMusic", musicParams.uuid, playlistUUID);
             }

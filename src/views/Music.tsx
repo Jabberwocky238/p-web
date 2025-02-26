@@ -70,22 +70,19 @@ const btnExport = async (music: Music) => {
 
 interface BtnAddToProps {
     musicUUID: string;
-    local: boolean;
 }
 
-function BtnAddTo({ musicUUID, local }: BtnAddToProps) {
+function BtnAddTo({ musicUUID }: BtnAddToProps) {
     const [open, setOpen] = useState(false);
     const [playlists, setPlaylists] = useState<Playlist[]>([]);
     const [chosen, setChosen] = useState<boolean[]>([]);
 
     const handleClickOpen = async () => {
         const ps = await Playlist.getAllPlaylist()
-        if (local) {
-            setPlaylists(ps);
-        } else {
-            setPlaylists(ps.filter(p => p.uuid !== LOCAL_PLAYLIST_UUID));
-        }
-        setChosen(ps.map(() => false));
+        const ps2 = ps.filter(p => p.uuid !== LOCAL_PLAYLIST_UUID);
+        const ps3 = ps2.map(p => p.contains.indexOf(musicUUID) !== -1);
+        setPlaylists(ps2)
+        setChosen(ps3);
         setOpen(true);
     };
     const handleClose = () => {
@@ -95,7 +92,7 @@ function BtnAddTo({ musicUUID, local }: BtnAddToProps) {
         <>
             <Chip
                 icon={<AddCircleOutlineOutlined />}
-                label="AddTo"
+                label="Playlist"
                 onClick={handleClickOpen}
                 color="primary"
             />
@@ -114,6 +111,10 @@ function BtnAddTo({ musicUUID, local }: BtnAddToProps) {
                                     // console.log(item.title);
                                     item.addMusic(musicUUID).then(() => {
                                         Notify.success("Add to playlist success");
+                                    })
+                                } else {
+                                    item.delMusic(musicUUID).then(() => {
+                                        Notify.success("Remove from playlist success");
                                     })
                                 }
                             }
@@ -137,18 +138,6 @@ function BtnAddTo({ musicUUID, local }: BtnAddToProps) {
                             />
                         ))}
                     </Stack>
-
-                    {/* <TextField
-                        autoFocus
-                        required
-                        margin="dense"
-                        id="name"
-                        name="email"
-                        label="Email Address"
-                        type="email"
-                        fullWidth
-                        variant="standard"
-                    /> */}
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={handleClose}>Cancel</Button>
@@ -166,31 +155,30 @@ export default function MusicDetail() {
     const [coverUrl, setCoverUrl] = useState<string>("");
     const [location, navigate] = useLocation();
     const [isLocal, setIsLocal] = useState(false);
-    const [modal, setModal] = useState<React.ReactElement>();
+
+    const switchMusic = async (musicUUID: string) => {
+        const music = await Music.fromUUID(musicUUID);
+        if (!music) {
+            Notify.error("Music not found");
+            return;
+        }
+        setMusic(music);
+        setCoverUrl(music.thumbnail);
+        setIsLocal(music.status.local);
+    }
 
     useEffect(() => {
         (async () => {
             if (!ok) {
                 return;
             }
-            // console.log(params.uuid);
-            const { music, coverUrl } = await retrieveMusicMetadata(params.uuid);
-            setMusic(music);
-            setCoverUrl(music.thumbnail);
-            setIsLocal(music.status.local);
-            setTimeout(() => {
-                setCoverUrl(coverUrl);
-            }, 2000);
+            switchMusic(params.uuid);
         })();
     }, [params && params.uuid]);
 
     useEffect(() => {
         const handler: Handler<'switchMusic'> = ({ musicUUID }) => {
-            retrieveMusicMetadata(musicUUID).then(({ music, coverUrl }) => {
-                setMusic(music);
-                setCoverUrl(coverUrl);
-                setIsLocal(music.status.local);
-            });
+            switchMusic(musicUUID);
         };
         BUS.on("switchMusic", handler);
         return () => {
@@ -200,7 +188,6 @@ export default function MusicDetail() {
 
     return (
         <>
-            {modal}
             {music && (
                 <Stack spacing={2} sx={{ alignItems: 'center' }}>
                     <SquareImage src={coverUrl} width={'360px'} alt={music.title} />
@@ -250,7 +237,7 @@ export default function MusicDetail() {
                             }}
                             color="primary"
                         />}
-                        <BtnAddTo musicUUID={music.uuid} local={isLocal} />
+                        <BtnAddTo musicUUID={music.uuid} />
                     </Stack>
                     <Box minWidth={360} justifyItems={'center'}>
                         <PropertyBoard
@@ -262,19 +249,6 @@ export default function MusicDetail() {
             )}
         </>
     );
-}
-
-async function retrieveMusicMetadata(uuid: string) {
-    const music = await Music.fromUUID(uuid);
-    if (!music) {
-        throw new Error("Music not found");
-    }
-    console.log(music);
-    const coverUrl = await music.adapter().coverUrl();
-    return { music, coverUrl } as {
-        music: Music,
-        coverUrl: string,
-    };
 }
 
 const BACKGROUND_FILTER = (url: string) => ({

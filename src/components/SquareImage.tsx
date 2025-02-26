@@ -6,6 +6,7 @@ type SquareImageProps = ComponentPropsWithoutRef<'img'> & {
 
 const SquareImage = ({ width, style, ...props }: SquareImageProps) => {
     const formattedWidth = typeof width === 'number' ? `${width}px` : width;
+    const formattedHeight = formattedWidth?.endsWith("px") ? formattedWidth : 'auto';
 
     return (
         <img
@@ -14,7 +15,7 @@ const SquareImage = ({ width, style, ...props }: SquareImageProps) => {
             style={{
                 ...style,
                 width: formattedWidth || '100%',
-                height: 'auto', // 由 aspectRatio 自动计算
+                height: formattedHeight || '100%',
                 aspectRatio: '1/1',
                 objectFit: 'cover',
                 display: 'block',

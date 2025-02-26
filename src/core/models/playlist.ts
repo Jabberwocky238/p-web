@@ -90,6 +90,7 @@ export class Playlist {
             return;
         }
         this.contains.splice(index, 1);
+        await this.dumpToDB();
     }
 
     async dumpToDB() {
@@ -110,3 +111,5 @@ const HEART_PLAYLIST = new Playlist(HEART_PLAYLIST_UUID, 'Heart', []);
 
 export const TEMP_PLAYLIST_UUID = 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa';
 const TEMP_PLAYLIST = new Playlist(TEMP_PLAYLIST_UUID, 'Temp', []);
+
+export const NO_PLAYLIST_UUID = 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb';
