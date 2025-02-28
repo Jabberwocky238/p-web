@@ -9,7 +9,7 @@ import React, { useEffect, useMemo } from 'react';
 import PlaylistItem from '@@/PlaylistItem';
 import { useLocation, useRoute } from 'wouter';
 import Button from '@mui/material/Button';
-import PlaylistContainModal from '@@/PlaylistContainModal';
+import PlaylistContainModal from '@/components/PlaylistTransferList';
 import { LOCAL_PLAYLIST_UUID, Playlist } from '@/core/models/playlist';
 import { Notify } from '@/core/notify';
 import { BUS } from '@/core/bus';

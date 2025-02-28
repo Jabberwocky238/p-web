@@ -26,6 +26,7 @@
     background-color: #1a1a1a;
     transition: width 0.3s ease;
     overflow: hidden;
+    z-index: 1000;
 }
 
 .drawer.open {

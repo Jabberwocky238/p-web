@@ -4,7 +4,7 @@ import { LOCAL_PLAYLIST_UUID, Playlist, PlaylistParams } from '../core/models/pl
 import { Tooltip } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
-import PlaylistContainModal from '../components/PlaylistContainModal';
+import PlaylistContainModal from './PlaylistTransferList';
 import AvatarButton from './AvatarButton';
 import ListItemText from './ListItemText';
 import ListItem from './ListItem';

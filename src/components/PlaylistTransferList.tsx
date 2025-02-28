@@ -237,7 +237,7 @@ const Transition = React.forwardRef(function Transition(
     return <Slide direction="up" ref={ref} {...props} />;
 });
 
-export default function PlaylistContainModal({ open, handleClose, uuid }: PlaylistContainModalProps) {
+export default function PlaylistTransferList({ open, handleClose, uuid }: PlaylistContainModalProps) {
     const [contains, setContains] = React.useState<string[]>([]);
 
     const handleCommit = async () => {
