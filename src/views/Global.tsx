@@ -1,30 +1,16 @@
 
 import Box from '@mui/material/Box';
-import Paper from '@mui/material/Paper';
 import Stack from '@mui/material/Stack';
-import { styled } from '@mui/material/styles';
 import { Music, MusicProperties } from '@/core/models/music';
 import React from 'react';
-import PlaylistItem from '@@/PlaylistItem';
 import { Notify } from '@/core/notify';
 import { BUS } from '@/core/bus';
 import { useLocation, useRoute } from 'wouter';
 import { Remote } from '@/core/models/remote';
 import { Button } from '@mui/material';
 import PlaylistView from '@/components/Playlist';
-import { CacheControl } from '@/core/models/music/cache';
 import { NO_PLAYLIST_UUID } from '@/core/models/playlist';
 
-const Item = styled(Paper)(({ theme }) => ({
-    backgroundColor: '#fff',
-    ...theme.typography.body2,
-    padding: theme.spacing(1),
-    textAlign: 'center',
-    color: theme.palette.text.secondary,
-    ...theme.applyStyles('dark', {
-        backgroundColor: '#1A2027',
-    }),
-}));
 
 function RemotePlaylists({ uuid }: { uuid: string }) {
     const [musicList, setMusicList] = React.useState<Music[]>([]);

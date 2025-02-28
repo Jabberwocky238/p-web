@@ -18,7 +18,6 @@ import Checkbox from "@mui/material/Checkbox";
 import Dialog from "@mui/material/Dialog";
 import DialogTitle from "@mui/material/DialogTitle";
 import DialogContent from "@mui/material/DialogContent";
-import DialogContentText from "@mui/material/DialogContentText";
 import DialogActions from "@mui/material/DialogActions";
 import Button from "@mui/material/Button";
 import { LOCAL_PLAYLIST_UUID, Playlist } from "@/core/models/playlist";
@@ -219,7 +218,7 @@ export default function MusicDetail() {
                             }}
                             color="success"
                         />}
-                        {isLocal && <Chip
+                        <Chip
                             icon={<EditIcon />}
                             label="Edit"
                             onClick={(e) => {
@@ -227,7 +226,7 @@ export default function MusicDetail() {
                                 navigate(`/import/${music.uuid}`);
                             }}
                             color="primary"
-                        />}
+                        />
                         <BtnAddTo musicUUID={music.uuid} />
                     </Stack>
                     <Box minWidth={360} justifyItems={'center'}>

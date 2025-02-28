@@ -1,20 +1,14 @@
 import Box from '@mui/material/Box';
 import List from '@mui/material/List';
 import Divider from '@mui/material/Divider';
-import ListItem from '@mui/material/ListItem';
-import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import InboxIcon from '@mui/icons-material/MoveToInbox';
 import MailIcon from '@mui/icons-material/Mail';
-import { Link, useLocation } from 'wouter';
-import { Button, ListItemText } from '@mui/material';
-import { BUS } from '@/core/bus';
-import EditIcon from '@mui/icons-material/Edit';
+import { useLocation } from 'wouter';
+import { ListItemText } from '@mui/material';
 import React from 'react';
-import PlaylistSetting from '@/components/PlaylistSetting';
 import { LOCAL_PLAYLIST_UUID, Playlist } from '@/core/models/playlist';
 import DrawerItem from '@/components/DrawerItem';
-
 
 export const SETTINGS = [
     {
@@ -39,10 +33,6 @@ export default function DrawerList() {
     const [playlists, setPlaylists] = React.useState<Playlist[]>([]);
     const [location, navigate] = useLocation();
 
-    const closeDrawer = () => {
-        BUS.emit("toggleDrawer", { state: false });
-    }
-
     React.useEffect(() => {
         (async () => {
             const playlists = await Playlist.getAllPlaylist();
@@ -52,13 +42,13 @@ export default function DrawerList() {
 
     return (
         <>
-            <Box sx={{ width: 250 }} role="presentation">
+            <Box role="presentation">
                 <List>
                     {SETTINGS.map((obj, index) => (
                         <DrawerItem key={obj.name}
                             icon={index % 2 === 0 ? <InboxIcon /> : <MailIcon />}
                             onClick={() => {
-                                closeDrawer();
+                                // setDrawer(false);
                                 navigate(obj.link);
                             }} >
                             <ListItemText primary={obj.name} />
@@ -69,7 +59,7 @@ export default function DrawerList() {
                 <List>
                     {playlists.map((obj) => (
                         <DrawerItem key={obj.uuid} icon={<ListItemIcon />} onClick={() => {
-                            closeDrawer();
+                            // setDrawer(false);
                             navigate(`/playlist/${obj.uuid}`);
                         }} >
                             <ListItemText primary={obj.title} />

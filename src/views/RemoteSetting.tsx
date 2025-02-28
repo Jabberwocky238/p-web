@@ -1,17 +1,13 @@
-import List from '@mui/material/List';
-import ListItem from '@mui/material/ListItem';
-import ListItemAvatar from '@mui/material/ListItemAvatar';
-import Avatar from '@mui/material/Avatar';
-import ImageIcon from '@mui/icons-material/Image';
-import { Box, Button, Dialog, DialogActions, DialogContent, IconButton, ListItemText, Stack, TextField } from '@mui/material';
+import ListItem from '@/components/ListItem';
+import { Button, Dialog, DialogActions, DialogContent, TextField } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
-import { criticalRemoveEverything } from '@/core/indexedDB';
 import AddCircleOutline from '@mui/icons-material/AddCircleOutline';
 import { DEFAULT_REMOTE_UUID, Remote, RemoteParams } from '@/core/models/remote';
 import { useEffect, useState } from 'react';
 import { generateUUIDv4 } from '@/core/utils';
-import PlaylistSetting from '@/components/PlaylistSetting';
+import ListItemText from '@/components/ListItemText';
+import AvatarButton from '@/components/AvatarButton';
 
 interface ModalProps {
     open: boolean,
@@ -79,43 +75,23 @@ function AddModal({ open, handleClose, onSubmit, defaults }: ModalProps) {
     );
 }
 
-const AvatarButton: React.FC<{
-    onClick: () => void,
-    icon: React.JSX.Element,
-    disabled?: boolean
-}> = ({ onClick, icon, disabled }) => {
-    return (
-        <ListItemAvatar sx={{ cursor: 'pointer' }}>
-            <Avatar>
-                <IconButton disabled={disabled ?? false} onClick={onClick} size="large">
-                    {icon}
-                </IconButton>
-            </Avatar>
-        </ListItemAvatar>
-    );
-}
-
 interface SettingRemoteItemProps {
     remote: RemoteParams;
-    onChange: () => void;
+    onEdit: () => void;
     onDelete: () => void;
 }
 
-function SettingRemoteItem({ remote, onChange, onDelete }: SettingRemoteItemProps) {
-    const disabled = remote.uuid === DEFAULT_REMOTE_UUID;
-    // const disabled = false
-
+const SettingRemoteItem: React.FC<SettingRemoteItemProps> = ({ remote, onEdit, onDelete }) => {
     return (
-        <>
-            <ListItem>
-                <ListItemText primary={remote.name} secondary={remote.remoteUrl} />
-                <AvatarButton disabled={disabled} onClick={onChange} icon={<EditIcon />} />
-                <AvatarButton disabled={disabled} onClick={onDelete} icon={<DeleteIcon />} />
-            </ListItem>
-        </>
-    )
-}
-export default function Settings() {
+        <ListItem>
+            <ListItemText primary={remote.name} secondary={remote.remoteUrl} />
+            <AvatarButton disabled={remote.uuid === DEFAULT_REMOTE_UUID} onClick={onEdit} icon={<EditIcon />} />
+            <AvatarButton disabled={remote.uuid === DEFAULT_REMOTE_UUID} onClick={onDelete} icon={<DeleteIcon />} />
+        </ListItem>
+    );
+};
+
+export default function RemoteSetting() {
     const [remotes, setRemotes] = useState<Remote[]>([]);
     const [modal, setModal] = useState<React.JSX.Element>();
 
@@ -167,7 +143,7 @@ export default function Settings() {
     }
 
     return (
-        <List sx={{ width: '100%', bgcolor: 'background.paper' }}>
+        <div>
             <Button variant="contained" endIcon={<AddCircleOutline />}
                 sx={{ width: '100%' }}
                 onClick={() => onCreateBuilder()}
@@ -178,11 +154,11 @@ export default function Settings() {
                 <SettingRemoteItem
                     key={remote.uuid}
                     remote={remote}
-                    onChange={() => onChangeBuilder(remote.uuid, remote.name, remote.remoteUrl)}
+                    onEdit={() => onChangeBuilder(remote.uuid, remote.name, remote.remoteUrl)}
                     onDelete={() => onDeleteBuilder(remote.uuid)}
                 />
             ))}
             {modal}
-        </List>
+        </div>
     );
 }

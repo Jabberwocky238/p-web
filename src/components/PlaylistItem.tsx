@@ -1,6 +1,3 @@
-
-import Card from '@mui/material/Card';
-import CardContent from '@mui/material/CardContent';
 import Typography from '@mui/material/Typography';
 import { DEFAULT_THUMBNAIL, Music, MusicProperties } from '../core/models/music';
 import SquareImage from './SquareImage';
@@ -36,11 +33,19 @@ export default function MediaControlCard({ musicParams, onClick }: PlaylistItemP
         <Item sx={{ display: 'flex', flexDirection: 'row' }} onClick={onClick}>
             <SquareImage src={thumb} width={isMobile() ? '100px' : '240px'} />
             <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'flex-start', marginLeft: '10px' }}>
-                <h3 style={{
-                    whiteSpace: 'nowrap',
+                <div style={{
+                    display: '-webkit-box',
+                    WebkitBoxOrient: 'vertical',
+                    WebkitLineClamp: 2,
                     overflow: 'hidden',
                     textOverflow: 'ellipsis',
-                }}>{musicParams.title}</h3>
+                    lineHeight: '1.2',
+                    maxHeight: '2.4em',
+                    fontSize: 'large',
+                    fontWeight: 'bold',
+                }}>
+                {musicParams.title}
+                </div>
                 <div style={{ width: '100%' }}>
                     {Object.entries(musicParams.properties).map(([key, value]) => {
                         return (

@@ -1,18 +1,8 @@
-import List from '@mui/material/List';
-import ListItem from '@mui/material/ListItem';
-import ListItemAvatar from '@mui/material/ListItemAvatar';
-import Avatar from '@mui/material/Avatar';
 import ImageIcon from '@mui/icons-material/Image';
-import { Box, Button, Dialog, DialogActions, DialogContent, IconButton, ListItemText, Stack, TextField } from '@mui/material';
-import DeleteIcon from '@mui/icons-material/Delete';
-import EditIcon from '@mui/icons-material/Edit';
+import { Box, Button, Stack, TextField } from '@mui/material';
 import { criticalRemoveEverything } from '@/core/indexedDB';
-import AddCircleOutline from '@mui/icons-material/AddCircleOutline';
-import { Remote, RemoteParams } from '@/core/models/remote';
-import { useEffect, useState } from 'react';
-import { generateUUIDv4 } from '@/core/utils';
-import PlaylistSetting from '@/components/PlaylistSetting';
-import RemoteSetting from '@/components/RemoteSetting';
+import PlaylistSetting from '@/views/PlaylistSetting';
+import RemoteSetting from '@/views/RemoteSetting';
 
 export default function Settings() {
     return (

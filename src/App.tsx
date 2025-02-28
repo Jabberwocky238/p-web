@@ -1,77 +1,65 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { Redirect, Route, Router, Switch } from "wouter";
-import ButtonAppBar from "./views/TopBar";
-import { Container, Drawer } from "@mui/material";
-import DrawerList from "@/views/Drawer";
 import { useHashLocation } from "wouter/use-hash-location";
-import { ThemeProvider, createTheme } from '@mui/material';
-import Player from "@/views/Player";
 import { useDB } from "./core/indexedDB";
-import { BUS, Handler } from "./core/bus";
-
-import { SnackbarProvider, useSnackbar } from 'notistack';
-
-const theme = createTheme({
-	colorSchemes: {
-		dark: true,
-	},
-});
+import { SnackbarProvider } from 'notistack';
+import Layout from "./components/Layout";
+import { DrawerProvider } from "@/context/DrawerContext";
+import { ThemeProvider, createTheme } from '@mui/material/styles';
 
 function Warp({ children }: { children: React.ReactNode }) {
 	return (
-		<ThemeProvider theme={theme}>
-			<SnackbarProvider maxSnack={3}>
-				{children}
-			</SnackbarProvider>
-		</ThemeProvider>
+		<SnackbarProvider maxSnack={3}>
+			{children}
+		</SnackbarProvider>
 	);
 }
 
-export default function App() {
-	const [open, setOpen] = useState(false);
-	// const { enqueueSnackbar } = useSnackbar();
+// Create a dark theme
+const darkTheme = createTheme({
+	palette: {
+		mode: 'dark',
+		background: {
+			default: '#121212',
+			paper: '#1e1e1e',
+		},
+		text: {
+			primary: '#ffffff',
+			secondary: '#b0b0b0',
+		},
+	},
+});
 
+export default function App() {
 	useEffect(() => {
 		(async () => {
 			await useDB();
 		})();
-		const toggle: Handler<'toggleDrawer'> = (payload) => {
-			setOpen(payload.state);
-		}
-		BUS.on("toggleDrawer", toggle);
-
-		// console.log("init Notify");
-		// enqueueSnackbar("init Notify", { variant: "info" });
-
-		return () => {
-			BUS.off("toggleDrawer", toggle);
-		}
 	}, []);
 
 	return (
-		<>
-			<Warp>
-				<Router hook={useHashLocation}>
-					<ButtonAppBar />
-					<Drawer open={open} onClose={() => setOpen(false)}>
-						<DrawerList />
-					</Drawer>
-					<div style={{ flexGrow: 1 }}>
-						<Switch>
-							{SETTINGS.map((obj) => (
-								<Route path={obj.link} key={obj.name}>
-									{obj.component}
-								</Route>
-							))}
-							<Route>
-								<Redirect to="/playlist/" />
-							</Route>
-						</Switch>
-					</div>
-					<Player />
-				</Router>
-			</Warp>
-		</>
+		<Warp>
+			<ThemeProvider theme={darkTheme}>
+				<DrawerProvider>
+					<Router hook={useHashLocation}>
+						<Layout>
+							<div style={{ flexGrow: 1 }}>
+								<Switch>
+									{SETTINGS.map((obj) => (
+										<Route path={obj.link} key={obj.name}>
+											{obj.component}
+										</Route>
+									))}
+									<Route>
+										<Redirect to="/playlist/" />
+									</Route>
+								</Switch>
+							</div>
+						</Layout>
+					</Router>
+				</DrawerProvider>
+			</ThemeProvider>
+		</Warp>
 	);
 }
 
@@ -80,7 +68,6 @@ import Playlist from "@/views/Playlist";
 import MusicDetail from "@/views/Music";
 import Settings from "@/views/Settings";
 import Global from "./views/Global";
-import { Notify } from "./core/notify";
 
 const SETTINGS = [
 	{
@@ -108,4 +95,4 @@ const SETTINGS = [
 		link: "/settings/",
 		component: <Settings />,
 	}
-]
+];
