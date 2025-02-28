@@ -4,7 +4,7 @@ import { useHashLocation } from "wouter/use-hash-location";
 import { useDB } from "./core/indexedDB";
 import { SnackbarProvider } from 'notistack';
 import Layout from "./components/Layout";
-import { DrawerProvider } from "@/context/DrawerContext";
+import { MeucContextProvider } from "@/context/MeucContext";
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 
 function Warp({ children }: { children: React.ReactNode }) {
@@ -40,7 +40,7 @@ export default function App() {
 	return (
 		<Warp>
 			<ThemeProvider theme={darkTheme}>
-				<DrawerProvider>
+				<MeucContextProvider>
 					<Router hook={useHashLocation}>
 						<Layout>
 							<div style={{ flexGrow: 1 }}>
@@ -57,7 +57,7 @@ export default function App() {
 							</div>
 						</Layout>
 					</Router>
-				</DrawerProvider>
+				</MeucContextProvider>
 			</ThemeProvider>
 		</Warp>
 	);
