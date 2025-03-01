@@ -10,6 +10,7 @@ import React from 'react';
 import { LOCAL_PLAYLIST_UUID, Playlist } from '@/core/models/playlist';
 import DrawerItem from '@/components/DrawerItem';
 import { useMeucContext } from '@/context/MeucContext';
+import { isMobile } from '@/core/utils';
 
 export const SETTINGS = [
     {
@@ -54,7 +55,9 @@ export default function DrawerList() {
                         <DrawerItem key={obj.name}
                             icon={obj.icon}
                             onClick={() => {
-                                setDrawer(false);
+                                if (isMobile()) {
+                                    setDrawer(false);
+                                }
                                 navigate(obj.link);
                             }} >
                             <ListItemText primary={obj.name} />
@@ -65,7 +68,9 @@ export default function DrawerList() {
                 <List>
                     {playlists.map((obj) => (
                         <DrawerItem key={obj.uuid} icon={<InboxIcon />} onClick={() => {
-                            setDrawer(false);
+                            if (isMobile()) {
+                                setDrawer(false);
+                            }
                             navigate(`/playlist/${obj.uuid}`);
                         }} >
                             <ListItemText primary={obj.title} />

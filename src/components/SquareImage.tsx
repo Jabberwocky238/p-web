@@ -13,7 +13,6 @@ const SquareImage = ({ width, style, ...props }: SquareImageProps) => {
             {...props}
             className={'square-image'}
             style={{
-                ...style,
                 width: formattedWidth || '100%',
                 height: formattedHeight || '100%',
                 aspectRatio: '1/1',
@@ -21,6 +20,7 @@ const SquareImage = ({ width, style, ...props }: SquareImageProps) => {
                 display: 'block',
                 maxWidth: 'none', // 禁用默认最大宽度限制
                 objectPosition: 'center center',
+                ...style,
             }}
         />
     );

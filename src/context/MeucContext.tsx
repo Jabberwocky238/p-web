@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useEffect, useState } from 'react';
 
 interface MenuContextType {
     open: boolean;
@@ -7,16 +7,22 @@ interface MenuContextType {
 }
 
 const MeucContext = createContext<MenuContextType | undefined>(undefined);
+const defaultOpenLabel = '__MeucContext';
+const defaultOpen = () => localStorage.getItem(defaultOpenLabel) === 'true';
 
 export const MeucContextProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-    const [open, setOpen] = useState(false);
+    const [open, setOpen] = useState(defaultOpen());
 
     const toggleDrawer = () => {
-        setOpen(prev => !prev);
+        setOpen(prev => {
+            localStorage.setItem(defaultOpenLabel, (!prev).toString());
+            return !prev;
+        });
     };
 
     const setDrawer = (open: boolean) => {
         setOpen(open);
+        localStorage.setItem(defaultOpenLabel, open.toString());
     }
 
     return (

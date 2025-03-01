@@ -24,7 +24,7 @@ export default function Layout({ children }: LayoutProps) {
                     edge="start"
                     color="inherit"
                     aria-label="menu"
-                    sx={{ mr: 2 }}
+                    sx={{ boxSizing: 'border-box', padding: 1, ml: 0, m: 1 }}
                     onClick={toggleDrawer}
                 >
                     <MenuIcon />

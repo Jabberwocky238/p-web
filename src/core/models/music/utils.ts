@@ -1,3 +1,5 @@
+const THUMBNAIL_SIZE = 320;
+
 export async function cropAndResizeImage(file: File): Promise<File> {
     // 创建图片
     const img = new Image();
@@ -27,8 +29,8 @@ export async function cropAndResizeImage(file: File): Promise<File> {
 
     // 创建 Canvas 并绘制
     const canvas = document.createElement('canvas');
-    canvas.width = 400;
-    canvas.height = 400;
+    canvas.width = THUMBNAIL_SIZE;
+    canvas.height = THUMBNAIL_SIZE;
 
     const ctx = canvas.getContext('2d')!;
     ctx.drawImage(
@@ -36,7 +38,7 @@ export async function cropAndResizeImage(file: File): Promise<File> {
         x, y,         // 源图像裁剪起始点
         size, size,   // 源图像裁剪区域
         0, 0,         // Canvas 绘制起始点
-        400, 400      // Canvas 绘制尺寸
+        THUMBNAIL_SIZE, THUMBNAIL_SIZE      // Canvas 绘制尺寸
     );
 
     // 转为 Blob（可上传或展示）

@@ -43,18 +43,16 @@ export default function App() {
 				<MeucContextProvider>
 					<Router hook={useHashLocation}>
 						<Layout>
-							<div style={{ flexGrow: 1 }}>
-								<Switch>
-									{SETTINGS.map((obj) => (
-										<Route path={obj.link} key={obj.name}>
-											{obj.component}
-										</Route>
-									))}
-									<Route>
-										<Redirect to="/playlist/" />
+							<Switch>
+								{SETTINGS.map((obj) => (
+									<Route path={obj.link} key={obj.name}>
+										{obj.component}
 									</Route>
-								</Switch>
-							</div>
+								))}
+								<Route>
+									<Redirect to="/playlist/" />
+								</Route>
+							</Switch>
 						</Layout>
 					</Router>
 				</MeucContextProvider>

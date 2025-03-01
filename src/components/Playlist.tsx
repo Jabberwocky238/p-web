@@ -22,7 +22,7 @@ interface PlaylistViewProps {
 
 export default function PlaylistView({ musicList, onItemClick }: PlaylistViewProps) {
     return (
-        <Stack spacing={2}>
+        <Stack spacing={2} sx={{ padding: 1 }}>
             {musicList.map((music) => (
                 <Item key={music.uuid} >
                     <PlaylistItem musicParams={music} onClick={() => onItemClick(music)} />
