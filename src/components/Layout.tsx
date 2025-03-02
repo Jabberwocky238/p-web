@@ -6,8 +6,6 @@ import Player from "@/views/Player";
 import SearchBar from './SearchBar';
 import IconButton from '@mui/material/IconButton';
 import MenuIcon from '@mui/icons-material/Menu';
-import { isMobile } from '@/core/utils';
-import { Button } from '@mui/material';
 
 interface LayoutProps {
     children: React.ReactNode;
@@ -32,10 +30,7 @@ export default function Layout({ children }: LayoutProps) {
                 <SearchBar />
             </div>
             <main className="content" style={{ display: 'flex', flex: 1 }}>
-                <div className={`drawer ${open ? 'open' : ''}`} style={{
-                    width: open ? (isMobile() ? '100%' : '280px') : 0,
-                    position: isMobile() ? 'absolute' : 'relative',
-                }}>
+                <div className={`drawer ${open ? 'open' : ''}`}>
                     <DrawerList />
                 </div>
                 <section className="main-content">

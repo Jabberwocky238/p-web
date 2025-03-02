@@ -47,33 +47,14 @@ export default function BasicStack() {
 
     const jump = (musicParams: MusicProperties) => {
         const fn = async () => {
-            if (localStorage.getItem('musicUUID') === musicParams.uuid) {
-                // 如果点击的是当前正在播放的音乐，不做任何操作
-            } else {
-                // 如果拿的是远程的音乐，就先fetch再播放
-                if (!musicParams.status.local) {
-                    // 检查是否已经下载
-                    const local = await Music.fromUUID(musicParams.uuid);
-                    if (!local) {
-                        console.log("fetching remote music", musicParams.uuid);
-                        const music = await Music.fromParams(musicParams);
-                        await music.dumpToDB();
-                    } else {
-                        console.log("already downloaded", musicParams.uuid);
-                    }
-                }
-                BUS.emit('switchMusic', {
-                    musicUUID: musicParams.uuid,
-                    playlistUUID: memoPlaylistUUID,
-                });
-
-                // console.log("MediaControlCard switchMusic", musicParams.uuid, playlistUUID);
-            }
+            BUS.emit('switchMusic', {
+                musicUUID: musicParams.uuid,
+                playlistUUID: memoPlaylistUUID,
+            });
             navigate(`/music/${musicParams.uuid}`);
         }
         fn();
     }
-
 
     return (
         <>

@@ -16,7 +16,7 @@ export default function MusicDetail() {
     const [music, setMusic] = useState<Music | null>(null);
     const [coverUrl, setCoverUrl] = useState<string>("");
     const [location, navigate] = useLocation();
-    const [isLocal, setIsLocal] = useState(false);
+    // const [isLocal, setIsLocal] = useState(false);
 
     useEffect(() => {
         (async () => {
@@ -30,7 +30,10 @@ export default function MusicDetail() {
             }
             setMusic(music);
             setCoverUrl(music.thumbnail);
-            setIsLocal(music.status.local);
+
+            const bigCoverUrl = await music.adapter().coverUrl()
+            setCoverUrl(bigCoverUrl);
+            // setIsLocal(music.status.local);
         })();
     }, [params && params.uuid]);
 

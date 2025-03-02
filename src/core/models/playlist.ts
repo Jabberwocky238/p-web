@@ -84,6 +84,25 @@ export class Playlist {
         console.log(`music ${uuid} add to playlist ${this.uuid} suceeded`);
         await this.update();
     }
+    async addMusics(uuids: string[]) {
+        // check exist
+        // 查找不存在的部分
+        const notExist = uuids.filter(uuid => !this.contains.includes(uuid));
+        for (const uuid of notExist) {
+            const music = await Music.fromUUID(uuid);
+            if (!music) {
+                console.warn(`music ${uuid} not found`);
+                return;
+            }
+            this.contains.push(uuid);
+        }
+        console.log(`${notExist.length} musics add to playlist ${this.uuid} suceeded`);
+        await this.update();
+    }
+    async setMusics(uuids: string[]) {
+        this.contains = uuids;
+        await this.update();
+    }
     async delMusic(uuid: string) {
         const index = this.contains.indexOf(uuid);
         if (index === -1) {
@@ -115,5 +134,3 @@ const HEART_PLAYLIST = new Playlist(HEART_PLAYLIST_UUID, 'Heart', []);
 
 export const TEMP_PLAYLIST_UUID = 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa';
 const TEMP_PLAYLIST = new Playlist(TEMP_PLAYLIST_UUID, 'Temp', []);
-
-export const NO_PLAYLIST_UUID = 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb';

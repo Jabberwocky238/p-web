@@ -5,7 +5,7 @@ import { BUS, Handler } from '../core/bus';
 import { Music } from '../core/models/music';
 import { useSnackbar } from 'notistack';
 import { Notify } from '@/core/notify';
-import { NO_PLAYLIST_UUID, Playlist } from '@/core/models/playlist';
+import { Playlist, TEMP_PLAYLIST_UUID } from '@/core/models/playlist';
 import { useLocation } from 'wouter';
 
 export default function () {
@@ -46,22 +46,43 @@ export default function () {
     }
 
     async function fetchMusic(musicUUID: string, playlistUUID: string) {
-        const m = await Music.fromUUID(musicUUID);
-        if (!m) {
-            Notify.error(`404 Music not found, uuid: ${musicUUID}`);
-            return;
-        }
+        const oldPlaylistUUID = localStorage.getItem('playlistUUID') ?? TEMP_PLAYLIST_UUID;
+        const oldMusicUUID = localStorage.getItem('musicUUID') ?? "";
 
+        // 判断是否需要更换播放列表
         let _tracks: string[] = [];
-        if (playlistUUID === NO_PLAYLIST_UUID) {
-            _tracks = [musicUUID];
-        } else {
+        const tempPlaylist = await Playlist.fromUUID(TEMP_PLAYLIST_UUID)!;
+        /// 1. 上次不是临时列表，这次也不是
+        ///    Solve： 直接切换列表
+        /// 2. 上次是临时列表，这次不是
+        ///    Solve： 直接切换列表
+        /// 3. 上次不是临时列表，这次是
+        ///    Solve： 获取老列表所有音乐，插入临时列表，并且插入最新的音乐到最后
+        /// 4. 上次是临时列表，这次也是
+        ///    Solve： 追加最新的音乐到临时列表
+        if (playlistUUID !== TEMP_PLAYLIST_UUID) {
             const p = await Playlist.fromUUID(playlistUUID);
             if (!p) {
                 Notify.error(`404 Playlist not found, uuid: ${playlistUUID}`);
                 return;
             }
             _tracks = p.contains;
+            await tempPlaylist!.setMusics([]);
+        } else if (oldPlaylistUUID !== TEMP_PLAYLIST_UUID && playlistUUID === TEMP_PLAYLIST_UUID) {
+            // 选择了临时播放列表
+            // 获取老列表所有音乐，插入临时列表，并且插入最新的音乐到最后
+            const oldPlaylist = await Playlist.fromUUID(oldPlaylistUUID);
+            if (oldPlaylist) {
+                _tracks = [...oldPlaylist.contains, musicUUID];
+            } else {
+                _tracks = [musicUUID];
+            }
+            await tempPlaylist!.setMusics(_tracks);
+        } else {
+            // oldPlaylistUUID === TEMP_PLAYLIST_UUID && playlistUUID === TEMP_PLAYLIST_UUID
+            // 追加最新的音乐到临时列表
+            await tempPlaylist!.addMusic(musicUUID);
+            _tracks = tempPlaylist!.contains;
         }
         setTracks(_tracks);
         const index = _tracks.indexOf(musicUUID);
@@ -70,6 +91,15 @@ export default function () {
             return;
         }
         setIndex(index);
+
+        const m = await Music.fromUUID(musicUUID);
+        if (!m) {
+            Notify.error(`404 Music not found, uuid: ${musicUUID}`);
+            return;
+        }
+        if (oldMusicUUID === musicUUID) {
+            return;
+        }
         switchMusicFromUUID(musicUUID);
     }
 
@@ -81,14 +111,15 @@ export default function () {
 
         // loading for first render
         const musicUUID = localStorage.getItem('musicUUID');
-        const playlistUUID = localStorage.getItem('playlistUUID') ?? NO_PLAYLIST_UUID;
+        const playlistUUID = localStorage.getItem('playlistUUID') ?? TEMP_PLAYLIST_UUID;
         if (musicUUID) {
             fetchMusic(musicUUID, playlistUUID)
         }
         const _switchMusicHandler: Handler<'switchMusic'> = ({ musicUUID, playlistUUID }) => {
-            localStorage.setItem('musicUUID', musicUUID);
-            localStorage.setItem('playlistUUID', playlistUUID);
-            fetchMusic(musicUUID, playlistUUID);
+            fetchMusic(musicUUID, playlistUUID).then(() => {
+                localStorage.setItem('musicUUID', musicUUID);
+                localStorage.setItem('playlistUUID', playlistUUID);
+            })
         }
         BUS.on('switchMusic', _switchMusicHandler)
         return () => {

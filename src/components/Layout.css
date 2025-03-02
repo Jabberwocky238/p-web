@@ -26,10 +26,22 @@
     transition: width 0.3s ease;
     overflow: hidden;
     z-index: 1000;
+
+    width: 0;
 }
 
 .drawer.open {
     border-right: 1px solid #333;
+
+    position: relative;
+    width: 280px;
+}
+
+@media (max-width: 568px) {
+    .drawer.open {
+        position: absolute;
+        width: 100%;
+    }
 }
 
 .main-content {

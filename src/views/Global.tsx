@@ -9,7 +9,7 @@ import { useLocation, useRoute } from 'wouter';
 import { Remote } from '@/core/models/remote';
 import { Button } from '@mui/material';
 import PlaylistView from '@/components/Playlist';
-import { NO_PLAYLIST_UUID } from '@/core/models/playlist';
+import { NO_PLAYLIST_UUID, TEMP_PLAYLIST_UUID, Playlist } from '@/core/models/playlist';
 
 
 function RemotePlaylists({ uuid }: { uuid: string }) {
@@ -37,14 +37,16 @@ function RemotePlaylists({ uuid }: { uuid: string }) {
             // 如果拿的是远程的音乐，就先fetch再播放
             if (!music.status.local) {
                 const mm = Music.fromParams(music);
-                if (!mm.status.local) {
-                    // console.log("fetching remote music", music.uuid);
-                    await mm.dumpToDB();
+                await mm.dumpToDB();
+                const tempPlaylist = await Playlist.fromUUID(TEMP_PLAYLIST_UUID);
+                if (!tempPlaylist) {
+                    throw new Error("No playlist found");
                 }
+                await tempPlaylist.addMusic(mm.uuid);
             }
             BUS.emit('switchMusic', {
                 musicUUID: music.uuid,
-                playlistUUID: NO_PLAYLIST_UUID,
+                playlistUUID: TEMP_PLAYLIST_UUID,
             });
             navigate(`/music/${music.uuid}`);
         }
